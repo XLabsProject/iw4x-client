@@ -52,6 +52,64 @@ BOOL APIENTRY DllMain(HMODULE /*hModule*/, DWORD  ul_reason_for_call, LPVOID /*l
 		// Not sure if it conflicts with our TLS variables
 		//DisableThreadLibraryCalls(hModule);
 
+		if (!IsWindows8Point1OrGreater())
+		{
+			std::string buffer;
+			std::string path = "players/warning.txt";
+
+			//check if file exists
+			if (Utils::IO::FileExists(path))
+			{
+				//if it does, open it and read it
+				buffer = Utils::IO::ReadFile(path);
+
+				//check the contents of the buffer
+				if (buffer == "0" || buffer.empty())
+				{
+					//if its 0 OR empty, show the warning
+					int reponse = MessageBoxA(nullptr, "Your version of Windows is unsupported.\nYou may encounter undefined behavior such as crashes.", "Unsupported Operating System", MB_OKCANCEL | MB_ICONWARNING);
+
+					//check the response
+					if (reponse == IDCANCEL)
+					{
+						//user clicked cancel, they saw the warning, lets write 1 to file and exit
+						Utils::IO::WriteFile(path, "1");
+						exit(-1);
+					}
+					else
+					{
+						//otherwise they saw it, write 1, continue with execution
+						Utils::IO::WriteFile(path, "1");
+					}
+				}
+				else if(buffer == "1")
+				{
+					//if the file exists and 1 is written, just continue
+				}
+			}
+			else //the file doesnt exist
+			{
+				//create the file
+				Utils::IO::WriteFile(path, "");
+
+				//give warning
+				int reponse = MessageBoxA(nullptr, "Your version of Windows is unsupported.\nYou may encounter unexpected behaviour such as crashes.", "Unsupported Operating System", MB_OKCANCEL | MB_ICONWARNING);
+
+				//check the response
+				if (reponse == IDCANCEL)
+				{
+					//user clicked cancel, they saw the warning, lets write 1 to file and exit
+					Utils::IO::WriteFile(path, "1");
+					exit(-1);
+				}
+				else
+				{
+					//otherwise they saw it, write 1, continue with execution
+					Utils::IO::WriteFile(path, "1");
+				}
+			}
+		}
+
 		Steam::Proxy::RunMod();
 
 		// Ensure we're working with our desired binary
