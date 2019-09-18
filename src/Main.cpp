@@ -67,7 +67,7 @@ BOOL APIENTRY DllMain(HMODULE /*hModule*/, DWORD  ul_reason_for_call, LPVOID /*l
 				if (buffer == "0" || buffer.empty())
 				{
 					//if its 0 OR empty, show the warning
-					int reponse = MessageBoxA(nullptr, "Your version of Windows is unsupported.\nYou may encounter undefined behavior such as crashes.", "Unsupported Operating System", MB_OKCANCEL | MB_ICONWARNING);
+					int reponse = MessageBoxA(nullptr, "Your version of Windows is unsupported.\nYou may encounter unexpected behavior such as crashes.\nWindows 8.1 or newer is required to run IW4x.", "Unsupported Operating System", MB_OKCANCEL | MB_ICONWARNING);
 
 					//check the response
 					if (reponse == IDCANCEL)
@@ -93,7 +93,7 @@ BOOL APIENTRY DllMain(HMODULE /*hModule*/, DWORD  ul_reason_for_call, LPVOID /*l
 				Utils::IO::WriteFile(path, "");
 
 				//give warning
-				int reponse = MessageBoxA(nullptr, "Your version of Windows is unsupported.\nYou may encounter unexpected behaviour such as crashes.", "Unsupported Operating System", MB_OKCANCEL | MB_ICONWARNING);
+				int reponse = MessageBoxA(nullptr, "Your version of Windows is unsupported.\nYou may encounter unexpected behaviour such as crashes.\nWindows 8.1 or newer is required to run IW4x.", "Unsupported Operating System", MB_OKCANCEL | MB_ICONWARNING);
 
 				//check the response
 				if (reponse == IDCANCEL)
