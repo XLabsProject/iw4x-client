@@ -24,7 +24,6 @@
 #include <Psapi.h>
 #include <tlhelp32.h>
 #include <Shlwapi.h>
-#include <VersionHelpers.h>
 
 #pragma warning(push)
 #pragma warning(disable: 4091)
