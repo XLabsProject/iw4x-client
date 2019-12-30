@@ -340,6 +340,101 @@ namespace Components
 
 		// Handle IWD freeing
 		Utils::Hook(0x642F60, FileSystem::IwdFreeStub, HOOK_CALL).install()->quick();
+
+		//Functions
+		Script::AddFunction("fileWrite", [](Game::scr_entref_t) // gsc: fileWrite(<filepath>, <string>, <mode>) example: fileWrite("./NewFolder/example.txt", "Example Text", false)
+		{
+			const std::string filepath = Game::Scr_GetString(0);
+			const std::string text = Game::Scr_GetString(1);
+			const std::string mode = Game::Scr_GetString(2);
+
+			if (std::empty(filepath))
+			{
+				Game::Com_Printf(0, "^1fileWrite: filepath not defined.\n");
+				return;
+			}
+			if (std::empty(text))
+				Game::Com_Printf(0, "^3fileWrite: text is empty.\n");
+			if (std::empty(mode))
+				Game::Com_Printf(0, "^3fileWrite, mode not defined, defaulting to false (true = append, false = no append)\n");
+
+			bool append = false;
+			if (mode.compare("append") == 0 || mode.compare("true") == 0 || mode.compare("1") == 0)
+				append = true;
+
+			FileSystem::FileWriter _file(filepath, append);
+			_file.write(text);
+		});
+
+		Script::AddFunction("fileRead", [](Game::scr_entref_t) // gsc: fileRead(<filepath>) example: fileRead("./NewFolder/example.txt")
+		{
+			const std::string filepath = Game::Scr_GetString(0);
+			const std::string file = std::filesystem::path(filepath).filename().string();
+
+			if (std::empty(filepath))
+			{
+				Game::Com_Printf(0, "^1fileRead: filepath not defined!\n");
+				return;
+			}
+
+			FileSystem::FileReader _file(filepath);
+			if (_file.exists())
+			{
+				const std::string text = _file.getBuffer();
+				Game::Scr_AddString(text.data());
+			}
+			else
+			{
+				const std::string errormsg = "^1FileRead: " + file + " not found!\n";
+				Game::Com_Printf(0, errormsg.data());
+			}
+		});
+
+		Script::AddFunction("fileDelete", [](Game::scr_entref_t) // gsc: fileDelete(<filepath>) example: fileDelete("./NewFolder/example.txt")
+		{
+			const std::string filepath = Game::Scr_GetString(0);
+			const std::string path = std::filesystem::path(filepath).parent_path().string();
+			const std::string file = std::filesystem::path(filepath).filename().string();
+
+			if (std::empty(filepath))
+			{
+				Game::Com_Printf(0, "^1fileDelete: filepath not defined!\n");
+				return;
+			}
+			else if (std::empty(file))
+			{
+				Game::Com_Printf(0, "^1fileDelete: file not defined!\n");
+				return;
+			}
+
+			FileSystem::DeleteFileW(path, file);
+		});
+
+		Script::AddFunction("fileExists", [](Game::scr_entref_t) // gsc: fileExists(<filepath>) example: fileExists("./NewFolder/example.txt")
+		{
+			const std::string filepath = Game::Scr_GetString(0);
+			const std::string file = std::filesystem::path(filepath).filename().string();
+			if (std::empty(filepath))
+			{
+				Game::Com_Printf(0, "^1fileExists: filepath not defined!\n");
+				return;
+			}
+			else if (std::empty(file))
+			{
+				Game::Com_Printf(0, "^1fileExists: file not defined!\n");
+				return;
+			}
+
+			FileSystem::FileReader _file(filepath);
+			if (_file.exists())
+			{
+				Game::Scr_AddInt(1);
+			}
+			else
+			{
+				Game::Scr_AddInt(0);
+			}
+		});
 	}
 
 	FileSystem::~FileSystem()
