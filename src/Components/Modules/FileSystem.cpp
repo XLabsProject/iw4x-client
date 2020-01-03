@@ -340,6 +340,106 @@ namespace Components
 
 		// Handle IWD freeing
 		Utils::Hook(0x642F60, FileSystem::IwdFreeStub, HOOK_CALL).install()->quick();
+
+		// Functions
+		Script::AddFunction("fileWrite", [](Game::scr_entref_t) // gsc: fileWrite(<filepath>, <string>, <mode>) example: fileWrite("NewFolder/example", "Example Text", "write"/"append")
+		{
+			auto path = Game::Scr_GetString(0);
+			auto text = Game::Scr_GetString(1);
+			auto mode = Game::Scr_GetString(2);
+
+			if (path == nullptr)
+			{
+				Game::Com_Printf(0, "^1fileWrite: filepath not defined!\n");
+				return;
+			}
+			auto newpath = std::string(path) + ".iw4xFile";
+			std::vector<const char*> query_strings = { R"(..)", R"(../)", R"(..\)" };
+			for (size_t i = 0u; i < query_strings.size(); i++)
+			{
+				if (newpath.find(query_strings[i]) != std::string::npos)
+				{
+					Game::Com_Printf(0, "^1fileWrite: directory traversal is not allowed!\n");
+					return;
+				}
+			}
+
+			if (mode == nullptr || mode != "append"s && mode != "write"s)
+			{
+				Game::Com_Printf(0, "^3fileWrite: mode not defined or was wrong, defaulting to 'write'\n");
+				mode = "write";
+			}
+
+			if (mode != nullptr)
+			{
+				if (mode == "write"s)
+				{
+					auto fileHandle = Game::FS_FOpenFileWrite(newpath.data());
+					Game::Scr_AddInt(Game::FS_Write(text, strlen(text), fileHandle));
+					Game::FS_FCloseFile(fileHandle);
+				}
+				else if (mode == "append"s)
+				{
+					auto fileHandle = Game::FS_FOpenFileAppend(newpath.data());
+					Game::FS_Write(text, strlen(text), fileHandle);
+					Game::FS_FCloseFile(fileHandle);
+				}
+			}
+		});
+
+		Script::AddFunction("fileRead", [](Game::scr_entref_t) // gsc: fileRead(<filepath>) example: fileRead("NewFolder/example")
+		{
+			auto path = Game::Scr_GetString(0);
+
+			if (path == nullptr)
+			{
+				Game::Com_Printf(0, "^1fileRead: filepath not defined!\n");
+				return;
+			}
+			auto newpath = std::string(path) + ".iw4xFile";
+			std::vector<const char*> query_strings = { R"(..)", R"(../)", R"(..\)" };
+			for (size_t i = 0u; i < query_strings.size(); i++)
+			{
+				if (newpath.find(query_strings[i]) != std::string::npos)
+				{
+					Game::Com_Printf(0, "^1fileRead: directory traversal is not allowed!\n");
+					return;
+				}
+			}
+
+			if (Game::FS_FileExists(newpath.data()) == false)
+			{
+				Game::Com_Printf(0, "^1fileRead: file not found!\n");
+				return;
+			}
+
+			char* buffer = nullptr;
+			Game::FS_ReadFile(newpath.data(), &buffer);
+			Game::Scr_AddString(buffer);
+		});
+
+		Script::AddFunction("fileExists", [](Game::scr_entref_t) // gsc: fileExists(<filepath>) example: fileExists("NewFolder/example")
+		{
+			auto path = Game::Scr_GetString(0);
+
+			if (path == nullptr)
+			{
+				Game::Com_Printf(0, "^1fileExists: filepath not defined!\n");
+				return;
+			}
+			auto newpath = std::string(path) + ".iw4xFile";
+			std::vector<const char*> query_strings = { R"(..)", R"(../)", R"(..\)" };
+			for (size_t i = 0u; i < query_strings.size(); i++)
+			{
+				if (newpath.find(query_strings[i]) != std::string::npos)
+				{
+					Game::Com_Printf(0, "^1fileExists: directory traversal is not allowed!\n");
+					return;
+				}
+			}
+
+			Game::Scr_AddInt(Game::FS_FileExists(newpath.data()));
+		});
 	}
 
 	FileSystem::~FileSystem()
