@@ -375,7 +375,7 @@ namespace Components
 				if (mode == "write"s)
 				{
 					auto fileHandle = Game::FS_FOpenFileWrite(newpath.data());
-					Game::Scr_AddInt(Game::FS_Write(text, strlen(text), fileHandle));
+					Game::FS_Write(text, strlen(text), fileHandle);
 					Game::FS_FCloseFile(fileHandle);
 				}
 				else if (mode == "append"s)
