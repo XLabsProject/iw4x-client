@@ -348,73 +348,69 @@ namespace Components
 			auto text = Game::Scr_GetString(1);
 			auto mode = Game::Scr_GetString(2);
 
-			if (path == nullptr)
+			if (path == nullptr || path == ""s)
 			{
 				Game::Com_Printf(0, "^1fileWrite: filepath not defined!\n");
 				return;
 			}
-			auto newpath = std::string(path) + ".iw4xFile";
-			std::vector<const char*> query_strings = { R"(..)", R"(../)", R"(..\)" };
-			for (size_t i = 0u; i < query_strings.size(); i++)
+			auto newPath = path + ".iw4xFile"s;
+			std::vector<const char*> queryStrings = { R"(..)", R"(../)", R"(..\)" };
+			for (auto i = 0u; i < queryStrings.size(); i++)
 			{
-				if (newpath.find(query_strings[i]) != std::string::npos)
+				if (newPath.find(queryStrings[i]) != std::string::npos)
 				{
 					Game::Com_Printf(0, "^1fileWrite: directory traversal is not allowed!\n");
 					return;
 				}
 			}
 
-			if (mode == nullptr || mode != "append"s && mode != "write"s)
+			if (mode != "append"s && mode != "write"s)
 			{
 				Game::Com_Printf(0, "^3fileWrite: mode not defined or was wrong, defaulting to 'write'\n");
 				mode = "write";
 			}
 
-			if (mode != nullptr)
+			int fileHandle = -1;
+			if (mode == "write"s)
 			{
-				if (mode == "write"s)
-				{
-					auto fileHandle = Game::FS_FOpenFileWrite(newpath.data());
-					Game::FS_Write(text, strlen(text), fileHandle);
-					Game::FS_FCloseFile(fileHandle);
-				}
-				else if (mode == "append"s)
-				{
-					auto fileHandle = Game::FS_FOpenFileAppend(newpath.data());
-					Game::FS_Write(text, strlen(text), fileHandle);
-					Game::FS_FCloseFile(fileHandle);
-				}
+				fileHandle = Game::FS_FOpenFileWrite(newPath.data());
 			}
+			else if (mode == "append"s)
+			{
+				fileHandle = Game::FS_FOpenFileAppend(newPath.data());
+			}
+			Game::FS_Write(text, strlen(text), fileHandle);
+			Game::FS_FCloseFile(fileHandle);
 		});
 
 		Script::AddFunction("fileRead", [](Game::scr_entref_t) // gsc: fileRead(<filepath>) example: fileRead("NewFolder/example")
 		{
 			auto path = Game::Scr_GetString(0);
 
-			if (path == nullptr)
+			if (path == nullptr || path == ""s)
 			{
 				Game::Com_Printf(0, "^1fileRead: filepath not defined!\n");
 				return;
 			}
-			auto newpath = std::string(path) + ".iw4xFile";
-			std::vector<const char*> query_strings = { R"(..)", R"(../)", R"(..\)" };
-			for (size_t i = 0u; i < query_strings.size(); i++)
+			auto newPath = path + ".iw4xFile"s;
+			std::vector<const char*> queryStrings = { R"(..)", R"(../)", R"(..\)" };
+			for (auto i = 0u; i < queryStrings.size(); i++)
 			{
-				if (newpath.find(query_strings[i]) != std::string::npos)
+				if (newPath.find(queryStrings[i]) != std::string::npos)
 				{
 					Game::Com_Printf(0, "^1fileRead: directory traversal is not allowed!\n");
 					return;
 				}
 			}
 
-			if (Game::FS_FileExists(newpath.data()) == false)
+			if (Game::FS_FileExists(newPath.data()) == false)
 			{
 				Game::Com_Printf(0, "^1fileRead: file not found!\n");
 				return;
 			}
 
 			char* buffer = nullptr;
-			Game::FS_ReadFile(newpath.data(), &buffer);
+			Game::FS_ReadFile(newPath.data(), &buffer);
 			Game::Scr_AddString(buffer);
 		});
 
@@ -422,23 +418,23 @@ namespace Components
 		{
 			auto path = Game::Scr_GetString(0);
 
-			if (path == nullptr)
+			if (path == nullptr || path == ""s)
 			{
 				Game::Com_Printf(0, "^1fileExists: filepath not defined!\n");
 				return;
 			}
-			auto newpath = std::string(path) + ".iw4xFile";
-			std::vector<const char*> query_strings = { R"(..)", R"(../)", R"(..\)" };
-			for (size_t i = 0u; i < query_strings.size(); i++)
+			auto newPath = path + ".iw4xFile"s;
+			std::vector<const char*> queryStrings = { R"(..)", R"(../)", R"(..\)" };
+			for (auto i = 0u; i < queryStrings.size(); i++)
 			{
-				if (newpath.find(query_strings[i]) != std::string::npos)
+				if (newPath.find(queryStrings[i]) != std::string::npos)
 				{
 					Game::Com_Printf(0, "^1fileExists: directory traversal is not allowed!\n");
 					return;
 				}
 			}
 
-			Game::Scr_AddInt(Game::FS_FileExists(newpath.data()));
+			Game::Scr_AddInt(Game::FS_FileExists(newPath.data()));
 		});
 	}
 
