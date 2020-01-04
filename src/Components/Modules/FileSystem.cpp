@@ -370,7 +370,7 @@ namespace Components
 				mode = "write";
 			}
 
-			int fileHandle = -1;
+			auto fileHandle = -1;
 			if (mode == "write"s)
 			{
 				fileHandle = Game::FS_FOpenFileWrite(newPath.data());
