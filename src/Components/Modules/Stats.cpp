@@ -68,10 +68,23 @@ namespace Components
 		const auto fs_game = Game::Dvar_FindVar("fs_game");
 		if (fs_game && fs_game->current.string && strlen(fs_game->current.string) && !strncmp(fs_game->current.string, "mods/", 5))
 		{
-			folder = fs_game->current.string;
+			auto directory = folder + "/"s + fs_game->current.string;
+			folder = directory.data();
 		}
 
 		return Utils::Hook::Call<int(char*, const char*, const char*, size_t)>(0x426450)(dest, folder, buffer, length);
+	}
+
+	int Stats::ReadStats(char* buffer, size_t buf_size, const char* format)
+	{
+		const auto fs_game = Game::Dvar_FindVar("fs_game");
+		if (fs_game && fs_game->current.string && strlen(fs_game->current.string) && !strncmp(fs_game->current.string, "mods/", 5))
+		{
+			auto directory = fs_game->current.string + "/"s + format;
+			format = directory.data();
+		}
+
+		return Utils::Hook::Call<int(char*, size_t, const char*)>(0x413DE0)(buffer, buf_size, format);
 	}
 
 	Stats::Stats()
@@ -103,8 +116,11 @@ namespace Components
 		// Don't create stat backup
 		Utils::Hook::Nop(0x402CE6, 2);
 
-		// Write stats to mod folder if a mod is loaded
+		// Write stats to mod specific folder if a mod is loaded
 		Utils::Hook(0x682F7B, Stats::SaveStats, HOOK_CALL).install()->quick();
+
+		// Read stats from mod specific folder if a mod is loaded
+		Utils::Hook(0x683168, Stats::ReadStats, HOOK_CALL).install()->quick();
 	}
 
 	Stats::~Stats()
