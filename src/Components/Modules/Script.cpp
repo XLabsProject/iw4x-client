@@ -247,11 +247,6 @@ namespace Components
 		Script::ScriptFunctions.push_back({ name, function, isDev });
 	}
 
-	void Script::OnVMShutdown(Utils::Slot<Scheduler::Callback> callback)
-	{
-		Script::VMShutdownSignal.connect(callback);
-	}
-
 	Game::scr_function_t Script::GetFunction(void* caller, const char** name, int* isDev)
 	{
 		for (auto& function : Script::ScriptFunctions)
@@ -293,6 +288,11 @@ namespace Components
 		}
 	}
 
+	void Script::OnVMShutdown(Utils::Slot<Scheduler::Callback> callback)
+	{
+		Script::VMShutdownSignal.connect(callback);
+	}
+
 	void Script::ScrShutdownSystemStub(int num)
 	{
 		Script::VMShutdownSignal();
@@ -316,6 +316,21 @@ namespace Components
 		return Game::Scr_GetNumParam();
 	}
 
+	Game::gentity_t* Script::getEntFromEntRef(Game::scr_entref_t entref)
+	{
+		Game::gentity_t* gentity = &Game::g_entities[entref];
+		return gentity;
+	}
+
+	Game::client_t* Script::getClientFromEnt(Game::gentity_t* gentity)
+	{
+		if (!gentity->client)
+		{
+			Logger::Error(5, "Entity: %i is not a client", gentity);
+		}
+		return &Game::svs_clients[gentity->number];
+	}
+
 	Script::Script()
 	{
 		Utils::Hook(0x612DB0, Script::StoreFunctionNameStub, HOOK_JUMP).install()->quick();
@@ -330,7 +345,7 @@ namespace Components
 		Utils::Hook(0x45D44A, Script::LoadGameTypeScript, HOOK_CALL).install()->quick();
 
 		Utils::Hook(0x44E736, Script::GetFunctionStub, HOOK_JUMP).install()->quick(); // Scr_GetFunction
-		//Utils::Hook(0x4EC8E5, Script::GetFunctionStub, HOOK_JUMP).install()->quick(); // Scr_GetMethod
+		Utils::Hook(0x4EC8E5, Script::GetFunctionStub, HOOK_JUMP).install()->quick(); // Scr_GetMethod
 
 		Utils::Hook(0x5F41A3, Script::SetExpFogStub, HOOK_CALL).install()->quick();
 
