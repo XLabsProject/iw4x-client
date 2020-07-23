@@ -268,6 +268,69 @@ namespace Components
 		}
 	}
 
+	Game::dvar_t* QuickPatch::g_playerCollision;
+	__declspec(naked) void QuickPatch::PlayerCollisionStub()
+	{
+		__asm
+		{
+			// check the value of g_playerCollision
+			push eax;
+			mov eax, g_playerCollision;
+			cmp byte ptr[eax + 16], 0;
+			pop eax;
+
+			// dont collide if g_playerCollision is set to 0
+			je dontcollide;
+
+			// original code
+			mov eax, dword ptr[esp + 0xa0];
+			jmp collide;
+
+		collide:
+			push 0x00478376;
+			retn;
+
+		dontcollide:
+			mov eax, dword ptr[esp + 0xa0];
+			mov ecx, dword ptr[esp + 9ch];
+			push eax;
+			push ecx;
+			lea edx, [esp + 48h];
+			push edx;
+			mov eax, esi;
+			push 0x0047838b;
+			retn;
+		}
+	}
+
+	Game::dvar_t* QuickPatch::g_playerEjection;
+	__declspec(naked) void QuickPatch::PlayerEjectionStub()
+	{
+		__asm
+		{
+			// check the value of g_playerEjection
+			push eax;
+			mov eax, g_playerEjection;
+			cmp byte ptr[eax + 16], 0;
+			pop eax;
+
+			// dont eject if g_playerEjection is set to 0
+			je donteject;
+
+			// original code
+			cmp dword ptr[ebx + 19ch], edi;
+			jle eject;
+
+		eject:
+			push 0x005d8152;
+			retn;
+
+		donteject:
+			push 0x005d815b;
+			retn;
+		}
+	}
+
 	template <typename T> std::function < T > ImportFunction(const std::string& dll, const std::string& function)
 	{
 		auto dllHandle = GetModuleHandleA(&dll[0]);
@@ -325,6 +388,14 @@ namespace Components
 
 		// Intermission time dvar
 		Game::Dvar_RegisterFloat("scr_intermissionTime", 10, 0, 120, Game::DVAR_FLAG_REPLICATED | Game::DVAR_FLAG_SAVED | Game::DVAR_FLAG_DEDISAVED, "Time in seconds before match server loads the next map");
+
+		// Player Collision dvar
+		g_playerCollision = Game::Dvar_RegisterBool("g_playerCollision", true, Game::DVAR_FLAG_REPLICATED, "Flag whether player collision is on or off");
+		Utils::Hook(0x47836F, QuickPatch::PlayerCollisionStub, HOOK_JUMP).install()->quick();
+
+		// Player Ejection dvar
+		g_playerEjection = Game::Dvar_RegisterBool("g_playerEjection", true, Game::DVAR_FLAG_REPLICATED, "Flag whether player ejection is on or off");
+		Utils::Hook(0x5D814A, QuickPatch::PlayerEjectionStub, HOOK_JUMP).install()->quick();
 
 		// Disallow invalid player names
 		Utils::Hook(0x401983, QuickPatch::InvalidNameStub, HOOK_JUMP).install()->quick();
@@ -611,6 +682,9 @@ namespace Components
 
 		// Patch SV_GameClientNum for edge case generating status
 		Utils::Hook(0x624DE2, QuickPatch::SVGameClientNum, HOOK_CALL).install()->quick();
+
+		// Ignore call to print 'Offhand class mismatch when giving weapon...'
+		Utils::Hook(0x5D9047, 0x4BB9B0, HOOK_CALL).install()->quick();
 
 		Command::Add("unlockstats", [](Command::Params*)
 		{
