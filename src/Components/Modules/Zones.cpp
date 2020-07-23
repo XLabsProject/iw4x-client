@@ -3409,9 +3409,11 @@ namespace Components
 		Utils::Hook(0x45A806, RelocateFileCount, HOOK_CALL).install()->quick();
 		Utils::Hook(0x45A6A0, RelocateFileCount, HOOK_CALL).install()->quick();
 		
+#ifndef DEBUG
 		// Ignore missing soundaliases for now
 		// TODO: Include them in the dependency zone!
 		Utils::Hook::Nop(0x644207, 5);
+#endif
 
 		// Block Mark_pathnode_constant_t
 		Utils::Hook::Set<BYTE>(0x4F74B0, 0xC3);
