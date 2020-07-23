@@ -138,6 +138,10 @@ namespace Components
 	{
 		return Game::Dvar_RegisterInt(name, value, min, max, flag.val, description);
 	}
+	template<> static Dvar::Var Dvar::Register(const char* name, float value, float min, float max, Dvar::Flag flag, const char* description)
+	{
+		return Game::Dvar_RegisterFloat(name, value, min, max, flag.val, description);
+	}
 
 	void Dvar::OnInit(Utils::Slot<Scheduler::Callback> callback)
 	{
