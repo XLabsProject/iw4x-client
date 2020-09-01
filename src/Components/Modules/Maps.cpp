@@ -682,7 +682,7 @@ namespace Components
 	Game::dvar_t* Maps::GetSpecularDvar()
 	{
 		Game::dvar_t*& r_specular = *reinterpret_cast<Game::dvar_t**>(0x69F0D94);
-		static Game::dvar_t* r_specularCustomMaps = Game::Dvar_RegisterBool("r_specularCustomMaps", true, Game::DVAR_FLAG_SAVED, "Allows shaders to use phong specular lighting on custom maps");
+		static Game::dvar_t* r_specularCustomMaps = Game::Dvar_RegisterBool("r_specularCustomMaps", false, Game::DVAR_FLAG_SAVED, "Allows shaders to use phong specular lighting on custom maps");
 
 		if (Maps::IsCustomMap())
 		{
