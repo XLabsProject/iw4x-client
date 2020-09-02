@@ -34,17 +34,14 @@ namespace Components
 				mode = "write";
 			}
 
-			auto fileHandle = 0;
 			if (mode == "write"s)
 			{
-				fileHandle = Game::FS_FOpenFileWrite(path.data());
+				FileSystem::FileWriter(path).write(text);
 			}
 			else if (mode == "append"s)
 			{
-				fileHandle = Game::FS_FOpenFileAppend(path.data());
+				FileSystem::FileWriter(path, true).write(text);
 			}
-			Game::FS_Write(text, strlen(text), fileHandle);
-			Game::FS_FCloseFile(fileHandle);
 		});
 
 		Script::AddFunction("fileRead", [](Game::scr_entref_t) // gsc: fileRead(<filepath>)
@@ -67,15 +64,13 @@ namespace Components
 				}
 			}
 
-			if (Game::FS_FileExists(path.data()) == false)
+			if (!FileSystem::FileReader(path).exists())
 			{
 				Game::Com_Printf(0, "^1fileRead: file not found!\n");
 				return;
 			}
 
-			char* buffer = nullptr;
-			Game::FS_ReadFile(path.data(), &buffer);
-			Game::Scr_AddString(buffer);
+			Game::Scr_AddString(FileSystem::FileReader(path).getBuffer().data());
 		});
 
 		Script::AddFunction("fileExists", [](Game::scr_entref_t) // gsc: fileExists(<filepath>)
@@ -98,7 +93,7 @@ namespace Components
 				}
 			}
 
-			Game::Scr_AddInt(Game::FS_FileExists(path.data()));
+			Game::Scr_AddInt(FileSystem::FileReader(path).exists());
 		});
 
 		Script::AddFunction("fileRemove", [](Game::scr_entref_t) // gsc: fileRemove(<filepath>)
@@ -121,7 +116,10 @@ namespace Components
 				}
 			}
 
-			Game::Scr_AddInt(Game::FS_Remove(path.data()));
+			auto p = std::filesystem::path(path);
+			std::string folder = p.parent_path().string();
+			std::string file = p.filename().string();
+			Game::Scr_AddInt(FileSystem::DeleteFile(folder, file));
 		});
 	}
 
