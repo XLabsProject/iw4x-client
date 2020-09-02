@@ -172,11 +172,11 @@ namespace Components
 		return fileList;
 	}
 
-	void FileSystem::DeleteFile(const std::string& folder, const std::string& file)
+	bool FileSystem::DeleteFile(const std::string& folder, const std::string& file)
 	{
 		char path[MAX_PATH] = { 0 };
 		Game::FS_BuildPathToFile(Dvar::Var("fs_basepath").get<const char*>(), reinterpret_cast<char*>(0x63D0BB8), Utils::String::VA("%s/%s", folder.data(), file.data()), reinterpret_cast<char**>(&path));
-		Game::FS_Remove(path);
+		return Game::FS_Remove(path);
 	}
 
 	int FileSystem::ReadFile(const char* path, char** buffer)

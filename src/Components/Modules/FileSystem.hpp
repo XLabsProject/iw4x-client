@@ -90,7 +90,7 @@ namespace Components
 
 		static std::vector<std::string> GetFileList(const std::string& path, const std::string& extension);
 		static std::vector<std::string> GetSysFileList(const std::string& path, const std::string& extension, bool folders = false);
-		static void DeleteFile(const std::string& folder, const std::string& file);
+		static bool DeleteFile(const std::string& folder, const std::string& file);
 
 	private:
 		static std::mutex Mutex;
