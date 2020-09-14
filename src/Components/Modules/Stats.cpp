@@ -67,12 +67,26 @@ namespace Components
 	{
 		const auto fs_game = Game::Dvar_FindVar("fs_game");
 
-		if (fs_game && fs_game->current.string && strlen(fs_game->current.string) && !strncmp(fs_game->current.string, "mods/", 5))
+		std::string _folder = folder;
+		if (fs_game && fs_game->current.string && strlen(fs_game->current.string) && (!strncmp(fs_game->current.string, "mods/", 5) || !strncmp(fs_game->current.string, "mods\\", 5)))
 		{
-			folder = fs_game->current.string;
+			_folder = folder + "/"s + fs_game->current.string;
 		}
 
-		return Utils::Hook::Call<int(char*, const char*, const char*, size_t)>(0x426450)(dest, folder, buffer, length);
+		return Utils::Hook::Call<int(char*, const char*, const char*, size_t)>(0x426450)(dest, _folder.data(), buffer, length);
+	}
+
+	int Stats::ReadStats(const char* file, int* filePointer)
+	{
+		const auto fs_game = Game::Dvar_FindVar("fs_game");
+
+		std::string _file = file;
+		if (fs_game && fs_game->current.string && strlen(fs_game->current.string) && (!strncmp(fs_game->current.string, "mods/", 5) || !strncmp(fs_game->current.string, "mods\\", 5)))
+		{
+			_file = fs_game->current.string + "/"s + file;
+		}
+		
+		return Utils::Hook::Call<int(const char*, int*)>(0x46CBF0)(_file.data(), filePointer);
 	}
 
 	Stats::Stats()
@@ -106,6 +120,9 @@ namespace Components
 
 		// Write stats to mod folder if a mod is loaded
 		Utils::Hook(0x682F7B, Stats::SaveStats, HOOK_CALL).install()->quick();
+
+		// Read stats from mod specific folder if a mod is loaded
+		Utils::Hook(0x68317C, Stats::ReadStats, HOOK_CALL).install()->quick();
 	}
 
 	Stats::~Stats()
