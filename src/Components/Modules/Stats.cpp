@@ -84,6 +84,13 @@ namespace Components
 		if (fs_game && fs_game->current.string && strlen(fs_game->current.string) && (!strncmp(fs_game->current.string, "mods/", 5) || !strncmp(fs_game->current.string, "mods\\", 5)))
 		{
 			_file = fs_game->current.string + "/"s + file;
+			if (!FileSystem::FileReader(_file).exists())
+			{
+				Scheduler::Once([]() 
+				{
+					Utils::Hook::Call<void(int)>(0x416E10)(0); // Magically fixes everything.
+				});
+			}
 		}
 		
 		return Utils::Hook::Call<int(const char*, int*)>(0x46CBF0)(_file.data(), filePointer);
@@ -118,7 +125,7 @@ namespace Components
 		// Don't create stat backup
 		Utils::Hook::Nop(0x402CE6, 2);
 
-		// Write stats to mod folder if a mod is loaded
+		// Write stats to mod specific folder if a mod is loaded
 		Utils::Hook(0x682F7B, Stats::SaveStats, HOOK_CALL).install()->quick();
 
 		// Read stats from mod specific folder if a mod is loaded

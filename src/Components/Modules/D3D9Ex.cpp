@@ -748,7 +748,7 @@ namespace Components
 	{
 		if (Dedicated::IsEnabled()) return;
 
-		Dvar::Register<bool>("r_useD3D9Ex", false, Game::dvar_flag::DVAR_FLAG_SAVED, "Use extended d3d9 interface!");
+		Dvar::Register<bool>("r_useD3D9Ex", true, Game::dvar_flag::DVAR_FLAG_SAVED, "Use extended d3d9 interface!");
 
 		// Hook Interface creation
 		Utils::Hook::Set(0x6D74D0, D3D9Ex::Direct3DCreate9Stub);

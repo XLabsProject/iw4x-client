@@ -160,6 +160,10 @@ namespace Components
 	{
 		AssertSize(Game::cmd_function_t, 24);
 
+		const int toastDurationShort = 1000;
+		const int toastDurationMedium = 2500;
+		const int toastDurationLong = 5000;
+
 		// Disable native noclip command
 		Utils::Hook::Nop(0x474846, 5);
 
@@ -169,21 +173,21 @@ namespace Components
 			if (!Game::CL_IsCgameInitialized() || clientNum >= 18 || clientNum < 0 || !Game::g_entities[clientNum].client)
 			{
 				Logger::Print("You are not hosting a match!\n");
-				Toast::Show("cardicon_stop", "Error", "You are not hosting a match!", 3000);
+				Toast::Show("cardicon_stop", "Error", "You are not hosting a match!", toastDurationShort);
 				return;
 			}
 
 			if (!Dvar::Var("sv_cheats").get<bool>())
 			{
 				Logger::Print("Cheats disabled!\n");
-				Toast::Show("cardicon_stop", "Error", "Cheats disabled!", 3000);
+				Toast::Show("cardicon_stop", "Error", "Cheats disabled!", toastDurationShort);
 				return;
 			}
 
 			Game::g_entities[clientNum].client->flags ^= Game::PLAYER_FLAG_NOCLIP;
 
 			Logger::Print("Noclip toggled\n");
-			Toast::Show("cardicon_abduction", "Success", "Noclip toggled", 3000);
+			Toast::Show("cardicon_abduction", "Success", "Noclip toggled", toastDurationShort);
 		});
 
 		Command::Add("ufo", [](Command::Params*)
@@ -192,21 +196,21 @@ namespace Components
 			if (!Game::CL_IsCgameInitialized() || clientNum >= 18 || clientNum < 0 || !Game::g_entities[clientNum].client)
 			{
 				Logger::Print("You are not hosting a match!\n");
-				Toast::Show("cardicon_stop", "Error", "You are not hosting a match!", 3000);
+				Toast::Show("cardicon_stop", "Error", "You are not hosting a match!", toastDurationShort);
 				return;
 			}
 
 			if (!Dvar::Var("sv_cheats").get<bool>())
 			{
 				Logger::Print("Cheats disabled!\n");
-				Toast::Show("cardicon_stop", "Error", "Cheats disabled!", 3000);
+				Toast::Show("cardicon_stop", "Error", "Cheats disabled!", toastDurationShort);
 				return;
 			}
 
 			Game::g_entities[clientNum].client->flags ^= Game::PLAYER_FLAG_UFO;
 
 			Logger::Print("UFO toggled\n");
-			Toast::Show("cardicon_abduction", "Success", "UFO toggled", 3000);
+			Toast::Show("cardicon_abduction", "Success", "UFO toggled", toastDurationShort);
 		});
 
 		Command::Add("setviewpos", [](Command::Params* params)
@@ -215,21 +219,21 @@ namespace Components
 			if (!Game::CL_IsCgameInitialized() || clientNum >= 18 || clientNum < 0 || !Game::g_entities[clientNum].client)
 			{
 				Logger::Print("You are not hosting a match!\n");
-				Toast::Show("cardicon_stop", "Error", "You are not hosting a match!", 3000);
+				Toast::Show("cardicon_stop", "Error", "You are not hosting a match!", toastDurationShort);
 				return;
 			}
 
 			if (!Dvar::Var("sv_cheats").get<bool>())
 			{
 				Logger::Print("Cheats disabled!\n");
-				Toast::Show("cardicon_stop", "Error", "Cheats disabled!", 3000);
+				Toast::Show("cardicon_stop", "Error", "Cheats disabled!", toastDurationShort);
 				return;
 			}
 
 			if (params->length() != 4 && params->length() != 6)
 			{
 				Logger::Print("Invalid coordinate specified!\n");
-				Toast::Show("cardicon_stop", "Error", "Invalid coordinate specified!", 3000);
+				Toast::Show("cardicon_stop", "Error", "Invalid coordinate specified!", toastDurationShort);
 				return;
 			}
 
@@ -250,7 +254,7 @@ namespace Components
 
 			// Logging that will spam the console and screen if people use cinematics
 			//Logger::Print("Successfully teleported player!\n");
-			//Toast::Show("cardicon_abduction", "Success", "You have been teleported!", 3000);
+			//Toast::Show("cardicon_abduction", "Success", "You have been teleported!", toastDurationShort);
 		});
 
 		Command::Add("openLink", [](Command::Params* params)

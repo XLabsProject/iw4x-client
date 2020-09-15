@@ -1,6 +1,6 @@
 #pragma once
 
-#define PROTOCOL 0x96
+#define PROTOCOL 0x95
 #define NUM_CUSTOM_CLASSES 15
 #define SEMANTIC_WATER_MAP 11
 #define FX_ELEM_FIELD_COUNT 90
@@ -120,6 +120,16 @@ namespace Game
 		DVAR_TYPE_FLOAT_3_COLOR = 0x9,
 		DVAR_TYPE_COUNT = 0xA,
 	} dvar_type;
+
+	typedef enum
+	{
+		CS_FREE = 0x0,
+		CS_UNKNOWN1,
+		CS_UNKNOWN2,
+		CS_CONNECTED = 0x3,
+		CS_CLIENTLOADING = 0x4,
+		CS_ACTIVE = 0x5,
+	} client_state_t;
 
 	struct FxEffectDef;
 	struct pathnode_t;
@@ -4469,7 +4479,7 @@ namespace Game
 	typedef struct client_s
 	{
 		// 0
-		int state;
+		client_state_t state;
 		// 4
 		char pad[36];
 		// 40

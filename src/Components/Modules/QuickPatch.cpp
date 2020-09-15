@@ -686,6 +686,15 @@ namespace Components
 		// Ignore call to print 'Offhand class mismatch when giving weapon...'
 		Utils::Hook(0x5D9047, 0x4BB9B0, HOOK_CALL).install()->quick();
 
+		// Nop call to print 'Unexpected text \'%s\' when trying to find \'%s\' in map\'s effect file\n' because the _fx gsc can be anything the user wants
+		// Fixes the 
+		// Error: Unexpected text main()
+		// {
+		//		
+		// }
+		// on ported maps
+		Utils::Hook::Nop(0x57E65A, 5);
+
 		Command::Add("unlockstats", [](Command::Params*)
 		{
 			QuickPatch::UnlockStats();

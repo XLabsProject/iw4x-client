@@ -167,12 +167,18 @@ namespace Components
 
 	void Node::RunFrame()
 	{
-		if (Dedicated::IsEnabled() && Dvar::Var("sv_lanOnly").get<bool>()) return;
+		if (Dedicated::IsEnabled())
+		{
+			bool isServerLoading = Utils::Hook::Call<bool()>(0x40BC50)();
+			if(Dvar::Var("sv_lanOnly").get<bool>() || isServerLoading)
+				return; // don't run if sv_lanOnly or while server is still loading
+		}
 
-		if (!Dedicated::IsEnabled() && Game::CL_IsCgameInitialized())
+		bool CL_IsCgameTrulyInitialized = Utils::Hook::Get<bool>(0xB2BB8B);
+		if (!Dedicated::IsEnabled() && CL_IsCgameTrulyInitialized)
 		{
 			wasIngame = true;
-			return; // don't run while ingame because it can still cause lag spikes on lower end PCs
+			return; // don't run while ingame because it can crash the game and still cause lag spikes on lower end PCs
 		}
 
 		if (wasIngame) // our last frame we were ingame and now we aren't so touch all nodes
