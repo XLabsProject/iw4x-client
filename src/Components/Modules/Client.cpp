@@ -139,6 +139,15 @@ namespace Components
 			std::string file = p.filename().string();
 			Game::Scr_AddInt(FileSystem::DeleteFile(folder, file));
 		});
+
+		// Print to console, even without being in 'developer 1'.
+
+		Script::AddFunction("PrintConsole", [](Game::scr_entref_t) // gsc: PrintConsole(<string>)
+		{
+			auto str = Game::Scr_GetString(0);
+
+			Game::Com_Printf(0, str);
+		});
 	}
 
 	void Client::AddMethods()
