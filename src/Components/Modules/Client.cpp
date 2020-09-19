@@ -4,6 +4,24 @@ namespace Components
 {
 	void Client::AddFunctions()
 	{
+		// System time
+
+		Script::AddFunction("GetSystemTime", [](Game::scr_entref_t) // gsc: GetSystemTime()
+		{
+			SYSTEMTIME time;
+			GetSystemTime(&time);
+
+			Game::Scr_AddInt(time.wSecond);
+		});
+
+		Script::AddFunction("GetSystemMilliseconds", [](Game::scr_entref_t) // gsc: GetSystemMilliseconds()
+		{
+			SYSTEMTIME time;
+			GetSystemTime(&time);
+
+			Game::Scr_AddInt(time.wMilliseconds);
+		});
+
 		//File functions
 
 		Script::AddFunction("fileWrite", [](Game::scr_entref_t) // gsc: fileWrite(<filepath>, <string>, <mode>)
