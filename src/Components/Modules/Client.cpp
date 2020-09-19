@@ -192,7 +192,7 @@ namespace Components
 
 			if (client->state >= 3)
 			{
-				client->ping = ping;
+				client->ping = (short)ping;
 			}
 		});
 	}
