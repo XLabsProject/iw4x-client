@@ -7,7 +7,6 @@ namespace Components
 	void Bots::BuildConnectString(char* buffer, const char* connectString, int num, int, int protocol, int checksum, int statVer, int statStuff, int port)
 	{
 		static int botId = 0;
-		static bool botsTxtExists = false;
 		const char* botName;
 
 		if (Bots::BotNames.empty())
@@ -16,7 +15,6 @@ namespace Components
 
 			if (bots.exists())
 			{
-				botsTxtExists = true;
 				std::vector<std::string> names = Utils::String::Explode(bots.getBuffer(), '\n');
 
 				for (auto name : names)
@@ -32,7 +30,7 @@ namespace Components
 			}
 		}
 
-		if (botsTxtExists)
+		if (!Bots::BotNames.empty())
 		{
 			botId %= Bots::BotNames.size();
 			botName = Bots::BotNames[botId++].data();
