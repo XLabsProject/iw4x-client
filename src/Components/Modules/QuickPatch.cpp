@@ -686,6 +686,10 @@ namespace Components
 		// Ignore call to print 'Offhand class mismatch when giving weapon...'
 		Utils::Hook(0x5D9047, 0x4BB9B0, HOOK_CALL).install()->quick();
 
+		// Ignore calls to print 'Warning: SetStance( %s )...'
+		Utils::Hook(0x5F06F8, 0x4BB9B0, HOOK_CALL).install()->quick();
+		Utils::Hook(0x5F07B3, 0x4BB9B0, HOOK_CALL).install()->quick();
+
 		Command::Add("unlockstats", [](Command::Params*)
 		{
 			QuickPatch::UnlockStats();
