@@ -26,6 +26,7 @@ namespace Components
 
 		static long AtolAdjustPlayerLimit(const char* string);
 
+		static Game::dvar_t* sv_enableJavelinBug;
 		static void JavelinResetHookStub();
 
 		static bool InvalidNameCheck(char *dest, char *source, int size);

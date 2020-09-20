@@ -105,10 +105,29 @@ namespace Components
 		Game::CL_SelectStringTableEntryInDvar_f();
 	}
 
+	Game::dvar_t* QuickPatch::sv_enableJavelinBug;
 	__declspec(naked) void QuickPatch::JavelinResetHookStub()
 	{
 		__asm
 		{
+			// check the value of sv_enableJavelinBug
+			push eax;
+			mov eax, sv_enableJavelinBug;
+			cmp byte ptr[eax + 16], 1;
+			pop eax;
+
+			// do not do jav bug if set to 0
+			jnz patchJavBug;
+
+			// original code
+			mov eax, 577A10h;
+			call eax;
+			pop     edi;
+			pop     esi;
+			pop     ebx;
+			retn;
+
+		patchJavBug:
 			mov eax, 577A10h;
 			call eax;
 			pop edi;
@@ -401,6 +420,7 @@ namespace Components
 		Utils::Hook(0x401983, QuickPatch::InvalidNameStub, HOOK_JUMP).install()->quick();
 
 		// Javelin fix
+		sv_enableJavelinBug = Game::Dvar_RegisterBool("sv_enableJavelinBug", false, Game::DVAR_FLAG_REPLICATED, "Unpatches the javelin glitch.");
 		Utils::Hook(0x578F52, QuickPatch::JavelinResetHookStub, HOOK_JUMP).install()->quick();
 
 		// Add ultrawide support
