@@ -148,6 +148,15 @@ namespace Components
 
 			Game::Com_Printf(0, str);
 		});
+
+		// Executes command to the console
+
+		Script::AddFunction("Exec", [](Game::scr_entref_t) // gsc: Exec(<string>)
+		{
+			auto str = Game::Scr_GetString(0);
+
+			Command::Execute(str, false);
+		});
 	}
 
 	void Client::AddMethods()
