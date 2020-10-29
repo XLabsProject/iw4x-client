@@ -762,8 +762,7 @@ namespace Components
 				{
 					if (pack.index == dlc)
 					{
-						News::LaunchUpdater(Utils::String::VA("-dlc %i -c", pack.index));
-						//ShellExecuteA(nullptr, "open", pack.url.data(), nullptr, nullptr, SW_SHOWNORMAL);
+						ShellExecute(0, 0, L"https://iw4x.org/downloads.html", 0, 0, SW_SHOW);
 						return;
 					}
 				}
