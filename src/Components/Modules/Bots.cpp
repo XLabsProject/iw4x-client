@@ -93,6 +93,7 @@ namespace Components
 
 		Scheduler::OnFrame([]()
 		{
+			int time = *Game::svs_time;
 			for (int i = 0; i < *Game::svs_numclients; ++i)
 			{
 				Game::client_t* client = &Game::svs_clients[i];
@@ -107,6 +108,12 @@ namespace Components
 
 				ucmd.forwardmove = 0x76;
 				ucmd.weapon = 1;
+				ucmd.serverTime = time;
+
+				if ((time / 50) % 2 == 0)
+					ucmd.buttons = 1u;
+
+				client->deltaMessage = client->netchan_outgoingSequence - 1;
 
 				Game::SV_ClientThink(client, &ucmd);
 			}
