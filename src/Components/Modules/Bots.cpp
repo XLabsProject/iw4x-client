@@ -4,6 +4,10 @@ namespace Components
 {
 	std::vector<std::string> Bots::BotNames;
 
+	void Bots::SV_BotUserMoveStub(Game::client_s* cl)
+	{
+	}
+
 	void Bots::BuildConnectString(char* buffer, const char* connectString, int num, int, int protocol, int checksum, int statVer, int statStuff, int port)
 	{
 		static int botId = 0;
@@ -82,6 +86,10 @@ namespace Components
 
 		// Intercept sprintf for the connect string
 		Utils::Hook(0x48ADAB, Bots::BuildConnectString, HOOK_CALL).install()->quick();
+
+		// Intercept SV_BotUserMove
+		Utils::Hook(0x627021, Bots::SV_BotUserMoveStub, HOOK_CALL).install()->quick();
+		Utils::Hook(0x627241, Bots::SV_BotUserMoveStub, HOOK_CALL).install()->quick();
 
 		Command::Add("spawnBot", [](Command::Params* params)
 		{
