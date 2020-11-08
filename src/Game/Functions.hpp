@@ -775,6 +775,8 @@ namespace Game
 	extern int* svs_numclients;
 	extern client_t* svs_clients;
 
+	extern int* svs_time;
+
 	extern source_t **sourceFiles;
 	extern keywordHash_t **menuParseKeywordHash;
 

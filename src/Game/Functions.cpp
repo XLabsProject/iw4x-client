@@ -347,6 +347,8 @@ namespace Game
 	int* svs_numclients = reinterpret_cast<int*>(0x31D938C);
 	client_t* svs_clients = reinterpret_cast<client_t*>(0x31D9390);
 
+	int* svs_time = reinterpret_cast<int*>(0x31D9384);
+
 	UiContext *uiContext = reinterpret_cast<UiContext *>(0x62E2858);
 
 	int* arenaCount = reinterpret_cast<int*>(0x62E6930);
