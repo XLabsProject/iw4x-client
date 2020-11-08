@@ -91,6 +91,27 @@ namespace Components
 		Utils::Hook(0x627021, Bots::SV_BotUserMoveStub, HOOK_CALL).install()->quick();
 		Utils::Hook(0x627241, Bots::SV_BotUserMoveStub, HOOK_CALL).install()->quick();
 
+		Scheduler::OnFrame([]()
+		{
+			for (int i = 0; i < *Game::svs_numclients; ++i)
+			{
+				Game::client_t* client = &Game::svs_clients[i];
+
+				if (client->state < 3)
+					continue;
+
+				if (!client->isBot)
+					continue;
+
+				Game::usercmd_s ucmd = { 0 };
+
+				ucmd.forwardmove = 0x76;
+				ucmd.weapon = 1;
+
+				Game::SV_ClientThink(client, &ucmd);
+			}
+		});
+
 		Command::Add("spawnBot", [](Command::Params* params)
 		{
 			unsigned int count = 1;
