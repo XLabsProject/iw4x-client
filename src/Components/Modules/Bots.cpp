@@ -1,10 +1,71 @@
 #include "STDInclude.hpp"
 
+#define KEY_MASK_FIRE           1
+#define KEY_MASK_SPRINT         2
+#define KEY_MASK_MELEE          4
+#define KEY_MASK_RELOAD         16
+#define KEY_MASK_LEANLEFT       64
+#define KEY_MASK_LEANRIGHT      128
+#define KEY_MASK_PRONE          256
+#define KEY_MASK_CROUCH         512
+#define KEY_MASK_JUMP           1024
+#define KEY_MASK_ADS_MODE       2048
+#define KEY_MASK_TEMP_ACTION    4096
+#define KEY_MASK_HOLDBREATH     8192
+#define KEY_MASK_FRAG           16384
+#define KEY_MASK_SMOKE          32768
+#define KEY_MASK_NIGHTVISION    262144
+#define KEY_MASK_ADS            524288
+#define KEY_MASK_USE            0x28
+
 namespace Components
 {
 	std::vector<std::string> Bots::BotNames;
 
-	void Bots::SV_BotUserMoveStub(Game::client_s* cl)
+	typedef struct BotMovementInfo_t
+	{
+		/* Actions */
+		int buttons;
+		/* Movement */
+		int8 forward;
+		int8 right;
+	} BotMovementInfo_t;
+
+	BotMovementInfo_t g_botai[18];
+
+	struct BotAction_t
+	{
+		const char* action;
+		int key;
+	};
+
+	const BotAction_t BotActions[] =
+	{
+		{ "gostand",    KEY_MASK_JUMP       },
+		{ "gocrouch",   KEY_MASK_CROUCH     },
+		{ "goprone",    KEY_MASK_PRONE      },
+		{ "fire",       KEY_MASK_FIRE       },
+		{ "melee",      KEY_MASK_MELEE      },
+		{ "frag",       KEY_MASK_FRAG       },
+		{ "smoke",      KEY_MASK_SMOKE      },
+		{ "reload",     KEY_MASK_RELOAD     },
+		{ "sprint",     KEY_MASK_SPRINT     },
+		{ "leanleft",   KEY_MASK_LEANLEFT   },
+		{ "leanright",  KEY_MASK_LEANRIGHT  },
+		{ "ads",        KEY_MASK_ADS_MODE   },
+		{ "holdbreath", KEY_MASK_HOLDBREATH }
+	};
+
+	unsigned int Bots::GetClientNum(Game::client_s* cl)
+	{
+		unsigned int num;
+
+		num = ((byte*)cl - (byte*)Game::svs_clients) / sizeof(Game::client_s);
+
+		return num;
+	}
+
+	void Bots::SV_BotUserMoveStub(Game::client_s*)
 	{
 	}
 
@@ -106,17 +167,126 @@ namespace Components
 
 				Game::usercmd_s ucmd = { 0 };
 
-				ucmd.forwardmove = 0x76;
 				ucmd.weapon = 1;
 				ucmd.serverTime = time;
 
-				if ((time / 50) % 2 == 0)
-					ucmd.buttons = 1u;
+				ucmd.buttons = g_botai[i].buttons;
+				ucmd.forwardmove = g_botai[i].forward;
+				ucmd.rightmove = g_botai[i].right;
 
 				client->deltaMessage = client->netchan_outgoingSequence - 1;
 
 				Game::SV_ClientThink(client, &ucmd);
 			}
+		});
+
+		// zero the bot command array
+		for (int i = 0; i < 18; i++)
+		{
+			g_botai[i] = { 0 };
+		}
+
+		Script::AddFunction("botStop", [](Game::scr_entref_t id) // Usage: <bot> botStop();
+		{
+			Game::gentity_t* gentity = Script::getEntFromEntRef(id);
+			Game::client_t* client = Script::getClientFromEnt(gentity);
+			unsigned int clientNum = GetClientNum(client);
+
+			if (!client->isBot)
+			{
+				Game::Com_Printf(0, "^1botStop: Can only call on a bot!\n");
+				return;
+			}
+
+			if (client->state < 3)
+			{
+				Game::Com_Printf(0, "^1botStop: Needs to be connected.\n");
+				return;
+			}
+
+			g_botai[clientNum] = { 0 };
+		});
+		
+		Script::AddFunction("botAction", [](Game::scr_entref_t id) // Usage: <bot> botAction(<str action>);
+		{
+			auto action = Game::Scr_GetString(0);
+
+			Game::gentity_t* gentity = Script::getEntFromEntRef(id);
+			Game::client_t* client = Script::getClientFromEnt(gentity);
+			unsigned int clientNum = GetClientNum(client);
+
+			if (!client->isBot)
+			{
+				Game::Com_Printf(0, "^1botAction: Can only call on a bot!\n");
+				return;
+			}
+
+			if (client->state < 3)
+			{
+				Game::Com_Printf(0, "^1botAction: Needs to be connected.\n");
+				return;
+			}
+
+			if (action[0] != '+' && action[0] != '-')
+			{
+				Game::Com_Printf(0, "^1botAction: Sign for action must be '+' or '-'.\n");
+				return;
+			}
+
+			bool key_found = false;
+			for (size_t i = 0; i < sizeof(BotActions) / sizeof(BotAction_t); ++i)
+			{
+				if (!Utils::String::StartsWith(&action[1], BotActions[i].action))
+					continue;
+
+				key_found = true;
+				if (action[0] == '+')
+					g_botai[clientNum].buttons |= BotActions[i].key;
+				else
+					g_botai[clientNum].buttons &= ~(BotActions[i].key);
+
+				return;
+			}
+
+			if (!key_found)
+			{
+				Game::Com_Printf(0, "^1botAction: Unknown action.\n");
+				return;
+			}
+		});
+
+		Script::AddFunction("botMovement", [](Game::scr_entref_t id) // Usage: <bot> botMovement(<int>, <int>);
+		{
+			auto forwardInt = Game::Scr_GetInt(0);
+			auto rightInt = Game::Scr_GetInt(1);
+
+			Game::gentity_t* gentity = Script::getEntFromEntRef(id);
+			Game::client_t* client = Script::getClientFromEnt(gentity);
+			unsigned int clientNum = GetClientNum(client);
+
+			if (!client->isBot)
+			{
+				Game::Com_Printf(0, "^1botMovement: Can only call on a bot!\n");
+				return;
+			}
+
+			if (client->state < 3)
+			{
+				Game::Com_Printf(0, "^1botMovement: Needs to be connected.\n");
+				return;
+			}
+
+			if (forwardInt > 127)
+				forwardInt = 127;
+			if (forwardInt < -127)
+				forwardInt = -127;
+			if (rightInt > 127)
+				rightInt = 127;
+			if (rightInt < -127)
+				rightInt = -127;
+
+			g_botai[clientNum].forward = (int8)forwardInt;
+			g_botai[clientNum].right = (int8)rightInt;
 		});
 
 		Command::Add("spawnBot", [](Command::Params* params)

@@ -5,6 +5,8 @@ namespace Components
 	class Bots : public Component
 	{
 	public:
+		static unsigned int Bots::GetClientNum(Game::client_s* cl);
+
 		Bots();
 		~Bots();
 
