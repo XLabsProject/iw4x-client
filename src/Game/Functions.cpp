@@ -294,6 +294,8 @@ namespace Game
 	SV_SetConfigstring_t SV_SetConfigstring = SV_SetConfigstring_t(0x4982E0);
 	SV_Loaded_t SV_Loaded = SV_Loaded_t(0x4EE3E0);
 
+	SV_ClientThink_t SV_ClientThink = SV_ClientThink_t(0x44ADD0);
+
 	Sys_Error_t Sys_Error = Sys_Error_t(0x4E0200);
 	Sys_FreeFileList_t Sys_FreeFileList = Sys_FreeFileList_t(0x4D8580);
 	Sys_IsDatabaseReady_t Sys_IsDatabaseReady = Sys_IsDatabaseReady_t(0x4CA4A0);

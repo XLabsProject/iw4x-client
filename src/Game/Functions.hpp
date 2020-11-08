@@ -657,6 +657,9 @@ namespace Game
 	typedef gentity_t*(__cdecl* SV_AddTestClient_t)();
 	extern SV_AddTestClient_t SV_AddTestClient;
 
+	typedef void(__cdecl* SV_ClientThink_t)(client_s*, usercmd_s*);
+	extern SV_ClientThink_t SV_ClientThink;
+
 	typedef int(__cdecl* SV_GameClientNum_Score_t)(int clientID);
 	extern SV_GameClientNum_Score_t SV_GameClientNum_Score;
 
