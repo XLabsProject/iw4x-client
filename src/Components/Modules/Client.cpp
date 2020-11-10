@@ -4,41 +4,6 @@ namespace Components
 {
 	void Client::AddFunctions()
 	{
-		// System time
-
-		Script::AddFunction("GetSystemTime", [](Game::scr_entref_t) // gsc: GetSystemTime()
-		{
-			SYSTEMTIME time;
-			GetSystemTime(&time);
-
-			Game::Scr_AddInt(time.wSecond);
-		});
-
-		Script::AddFunction("GetSystemMilliseconds", [](Game::scr_entref_t) // gsc: GetSystemMilliseconds()
-		{
-			SYSTEMTIME time;
-			GetSystemTime(&time);
-
-			Game::Scr_AddInt(time.wMilliseconds);
-		});
-
-		// Print to console, even without being in 'developer 1'.
-
-		Script::AddFunction("PrintConsole", [](Game::scr_entref_t) // gsc: PrintConsole(<string>)
-		{
-			auto str = Game::Scr_GetString(0);
-
-			Game::Com_Printf(0, str);
-		});
-
-		// Executes command to the console
-
-		Script::AddFunction("Exec", [](Game::scr_entref_t) // gsc: Exec(<string>)
-		{
-			auto str = Game::Scr_GetString(0);
-
-			Command::Execute(str, false);
-		});
 	}
 
 	void Client::AddMethods()

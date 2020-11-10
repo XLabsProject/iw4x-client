@@ -62,5 +62,7 @@ namespace Components
 		static void ScrShutdownSystemStub(int);
 
 		static int SetExpFogStub();
+
+		static void AddFunctions();
 	};
 }
