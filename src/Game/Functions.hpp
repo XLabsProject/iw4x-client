@@ -317,6 +317,9 @@ namespace Game
 	typedef iwd_t*(__cdecl * FS_IsShippedIWD_t)(const char* fullpath, const char* iwd);
 	extern FS_IsShippedIWD_t FS_IsShippedIWD;
 
+	typedef int(__cdecl* G_GetWeaponIndexForName_t)(char*);
+	extern G_GetWeaponIndexForName_t G_GetWeaponIndexForName;
+
 	typedef void(__cdecl* G_SpawnEntitiesFromString_t)();
 	extern G_SpawnEntitiesFromString_t G_SpawnEntitiesFromString;
 
