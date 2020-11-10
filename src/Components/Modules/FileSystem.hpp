@@ -114,5 +114,7 @@ namespace Components
 		static int LoadTextureSync(Game::GfxImageLoadDef **loadDef, Game::GfxImage *image);
 
 		static void IwdFreeStub(Game::iwd_t* iwd);
+
+		static void AddFunctions();
 	};
 }

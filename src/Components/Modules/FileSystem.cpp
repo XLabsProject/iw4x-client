@@ -293,6 +293,127 @@ namespace Components
 		Utils::Hook::Call<void(void*)>(0x4291A0)(iwd);
 	}
 
+	void FileSystem::AddFunctions()
+	{
+		//File functions
+
+		Script::AddFunction("fileWrite", [](Game::scr_entref_t) // gsc: fileWrite(<filepath>, <string>, <mode>)
+		{
+			std::string path = Game::Scr_GetString(0);
+			auto text = Game::Scr_GetString(1);
+			auto mode = Game::Scr_GetString(2);
+
+			if (path.empty())
+			{
+				Game::Com_Printf(0, "^1fileWrite: filepath not defined!\n");
+				return;
+			}
+
+			std::vector<const char*> queryStrings = { R"(..)", R"(../)", R"(..\)" };
+			for (auto i = 0u; i < queryStrings.size(); i++)
+			{
+				if (path.find(queryStrings[i]) != std::string::npos)
+				{
+					Game::Com_Printf(0, "^1fileWrite: directory traversal is not allowed!\n");
+					return;
+				}
+			}
+
+			if (mode != "append"s && mode != "write"s)
+			{
+				Game::Com_Printf(0, "^3fileWrite: mode not defined or was wrong, defaulting to 'write'\n");
+				mode = "write";
+			}
+
+			if (mode == "write"s)
+			{
+				FileSystem::FileWriter(path).write(text);
+			}
+			else if (mode == "append"s)
+			{
+				FileSystem::FileWriter(path, true).write(text);
+			}
+		});
+
+		Script::AddFunction("fileRead", [](Game::scr_entref_t) // gsc: fileRead(<filepath>)
+		{
+			std::string path = Game::Scr_GetString(0);
+
+			if (path.empty())
+			{
+				Game::Com_Printf(0, "^1fileRead: filepath not defined!\n");
+				return;
+			}
+
+			std::vector<const char*> queryStrings = { R"(..)", R"(../)", R"(..\)" };
+			for (auto i = 0u; i < queryStrings.size(); i++)
+			{
+				if (path.find(queryStrings[i]) != std::string::npos)
+				{
+					Game::Com_Printf(0, "^1fileRead: directory traversal is not allowed!\n");
+					return;
+				}
+			}
+
+			if (!FileSystem::FileReader(path).exists())
+			{
+				Game::Com_Printf(0, "^1fileRead: file not found!\n");
+				return;
+			}
+
+			Game::Scr_AddString(FileSystem::FileReader(path).getBuffer().data());
+		});
+
+		Script::AddFunction("fileExists", [](Game::scr_entref_t) // gsc: fileExists(<filepath>)
+		{
+			std::string path = Game::Scr_GetString(0);
+
+			if (path.empty())
+			{
+				Game::Com_Printf(0, "^1fileExists: filepath not defined!\n");
+				return;
+			}
+
+			std::vector<const char*> queryStrings = { R"(..)", R"(../)", R"(..\)" };
+			for (auto i = 0u; i < queryStrings.size(); i++)
+			{
+				if (path.find(queryStrings[i]) != std::string::npos)
+				{
+					Game::Com_Printf(0, "^1fileExists: directory traversal is not allowed!\n");
+					return;
+				}
+			}
+
+			Game::Scr_AddInt(FileSystem::FileReader(path).exists());
+		});
+
+		Script::AddFunction("fileRemove", [](Game::scr_entref_t) // gsc: fileRemove(<filepath>)
+		{
+			std::string path = Game::Scr_GetString(0);
+
+			if (path.empty())
+			{
+				Game::Com_Printf(0, "^1fileRemove: filepath not defined!\n");
+				return;
+			}
+
+			std::vector<const char*> queryStrings = { R"(..)", R"(../)", R"(..\)" };
+			for (auto i = 0u; i < queryStrings.size(); i++)
+			{
+				if (path.find(queryStrings[i]) != std::string::npos)
+				{
+					Game::Com_Printf(0, "^1fileRemove: directory traversal is not allowed!\n");
+					return;
+				}
+			}
+
+			auto p = std::filesystem::path(path);
+			std::string folder = p.parent_path().string();
+			std::string file = p.filename().string();
+			Game::Scr_AddInt(FileSystem::DeleteFile(folder, file));
+		});
+	}
+
 	FileSystem::FileSystem()
 	{
 		FileSystem::MemAllocator.clear();
@@ -340,6 +461,9 @@ namespace Components
 
 		// Handle IWD freeing
 		Utils::Hook(0x642F60, FileSystem::IwdFreeStub, HOOK_CALL).install()->quick();
+
+		// Add the GSC functions for FS
+		FileSystem::AddFunctions();
 	}
 
 	FileSystem::~FileSystem()
