@@ -29,6 +29,8 @@ namespace Components
 		/* Movement */
 		int8 forward;
 		int8 right;
+		/* Weapon */
+		unsigned short weapon;
 	} BotMovementInfo_t;
 
 	BotMovementInfo_t g_botai[18];
@@ -167,12 +169,12 @@ namespace Components
 
 				Game::usercmd_s ucmd = { 0 };
 
-				ucmd.weapon = 1;
 				ucmd.serverTime = time;
 
 				ucmd.buttons = g_botai[i].buttons;
 				ucmd.forwardmove = g_botai[i].forward;
 				ucmd.rightmove = g_botai[i].right;
+				ucmd.weapon = g_botai[i].weapon;
 
 				client->deltaMessage = client->netchan_outgoingSequence - 1;
 
@@ -184,6 +186,7 @@ namespace Components
 		for (int i = 0; i < 18; i++)
 		{
 			g_botai[i] = { 0 };
+			g_botai[i].weapon = 1; // prevent them from default to "none" weapon
 		}
 
 		Script::AddFunction("botStop", [](Game::scr_entref_t id) // Usage: <bot> botStop();
@@ -205,6 +208,32 @@ namespace Components
 			}
 
 			g_botai[clientNum] = { 0 };
+			g_botai[clientNum].weapon = 1; // prevent them from default to "none" weapon
+		});
+
+		Script::AddFunction("botWeapon", [](Game::scr_entref_t id) // Usage: <bot> botWeapon(<str>);
+		{
+			auto weapon = Game::Scr_GetString(0);
+
+			Game::gentity_t* gentity = Script::getEntFromEntRef(id);
+			Game::client_t* client = Script::getClientFromEnt(gentity);
+			unsigned int clientNum = GetClientNum(client);
+
+			if (!client->isBot)
+			{
+				Game::Com_Printf(0, "^botWeapon: Can only call on a bot!\n");
+				return;
+			}
+
+			if (client->state < 3)
+			{
+				Game::Com_Printf(0, "^botWeapon: Needs to be connected.\n");
+				return;
+			}
+
+			int weapId = Game::G_GetWeaponIndexForName(weapon);
+
+			g_botai[clientNum].weapon = (unsigned short)weapId;
 		});
 		
 		Script::AddFunction("botAction", [](Game::scr_entref_t id) // Usage: <bot> botAction(<str action>);
