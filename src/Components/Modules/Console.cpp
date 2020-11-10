@@ -593,7 +593,7 @@ namespace Components
 				Utils::Hook(0x43D570, Console::StdOutError, HOOK_JUMP).install()->quick();
 			}
 		}
-		else if (!Dedicated::IsEnabled() || ZoneBuilder::IsEnabled()) // ZoneBuilder uses the game's console, until the native one is adapted.
+		else if (Flags::HasFlag("console") || ZoneBuilder::IsEnabled()) // ZoneBuilder uses the game's console, until the native one is adapted.
 		{
 			Utils::Hook::Nop(0x60BB58, 11);
 
