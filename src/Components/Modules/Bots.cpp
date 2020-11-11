@@ -231,6 +231,12 @@ namespace Components
 				return;
 			}
 
+			if (weapon == ""s)
+			{
+				g_botai[clientNum].weapon = 1;
+				return;
+			}
+
 			int weapId = Game::G_GetWeaponIndexForName(weapon);
 
 			g_botai[clientNum].weapon = (unsigned short)weapId;
