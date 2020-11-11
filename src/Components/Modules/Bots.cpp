@@ -104,7 +104,7 @@ namespace Components
 		}
 		else
 		{
-			botName = Utils::String::VA("bot%d", botId++);
+			botName = Utils::String::VA("bot%d", ++botId);
 		}
 
 		strncpy_s(buffer, 0x400, Utils::String::VA(connectString, num, botName, protocol, checksum, statVer, statStuff, port), 0x400);
