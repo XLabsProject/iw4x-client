@@ -211,13 +211,13 @@ namespace Components
 
 			if (clientNum < 0 || clientNum >= sizeof(g_botai) / sizeof(BotMovementInfo_t))
 			{
-				Game::Com_Printf(0, "^isBot: Need to call on a player entity!\n");
+				Game::Scr_Error("^isBot: Need to call on a player entity!\n");
 				return;
 			}
 
 			if (client->state < 3)
 			{
-				Game::Com_Printf(0, "^isBot: Needs to be connected.\n");
+				Game::Scr_Error("^isBot: Needs to be connected.\n");
 				return;
 			}
 
@@ -232,19 +232,19 @@ namespace Components
 
 			if (clientNum < 0 || clientNum >= sizeof(g_botai) / sizeof(BotMovementInfo_t))
 			{
-				Game::Com_Printf(0, "^1botStop: Need to call on a player entity!\n");
+				Game::Scr_Error("^1botStop: Need to call on a player entity!\n");
 				return;
 			}
 
 			if (client->state < 3)
 			{
-				Game::Com_Printf(0, "^1botStop: Needs to be connected.\n");
+				Game::Scr_Error("^1botStop: Needs to be connected.\n");
 				return;
 			}
 
 			if (!client->isBot)
 			{
-				Game::Com_Printf(0, "^1botStop: Can only call on a bot!\n");
+				Game::Scr_Error("^1botStop: Can only call on a bot!\n");
 				return;
 			}
 
@@ -254,9 +254,9 @@ namespace Components
 
 		Script::AddFunction("botWeapon", [](Game::scr_entref_t id) // Usage: <bot> botWeapon(<str>);
 		{
-			if (Game::Scr_GetNumParam() < 1)
+			if (Game::Scr_GetNumParam() != 1 || Game::Scr_GetType(0) != Game::VAR_STRING)
 			{
-				Game::Com_Printf(0, "^botWeapon: Needs at least one parameter!\n");
+				Game::Scr_Error("^botWeapon: Needs one string parameter!\n");
 				return;
 			}
 
@@ -268,19 +268,19 @@ namespace Components
 
 			if (clientNum < 0 || clientNum >= sizeof(g_botai) / sizeof(BotMovementInfo_t))
 			{
-				Game::Com_Printf(0, "^botWeapon: Need to call on a player entity!\n");
+				Game::Scr_Error("^botWeapon: Need to call on a player entity!\n");
 				return;
 			}
 
 			if (client->state < 3)
 			{
-				Game::Com_Printf(0, "^botWeapon: Needs to be connected.\n");
+				Game::Scr_Error("^botWeapon: Needs to be connected.\n");
 				return;
 			}
 
 			if (!client->isBot)
 			{
-				Game::Com_Printf(0, "^botWeapon: Can only call on a bot!\n");
+				Game::Scr_Error("^botWeapon: Can only call on a bot!\n");
 				return;
 			}
 
@@ -297,9 +297,9 @@ namespace Components
 		
 		Script::AddFunction("botAction", [](Game::scr_entref_t id) // Usage: <bot> botAction(<str action>);
 		{
-			if (Game::Scr_GetNumParam() < 1)
+			if (Game::Scr_GetNumParam() != 1 || Game::Scr_GetType(0) != Game::VAR_STRING)
 			{
-				Game::Com_Printf(0, "^1botAction: Needs at least one parameter!\n");
+				Game::Scr_Error("^1botAction: Needs one string parameter!\n");
 				return;
 			}
 
@@ -311,24 +311,24 @@ namespace Components
 
 			if (clientNum < 0 || clientNum >= sizeof(g_botai) / sizeof(BotMovementInfo_t))
 			{
-				Game::Com_Printf(0, "^1botAction: Need to call on a player entity!\n");
+				Game::Scr_Error("^1botAction: Need to call on a player entity!\n");
 				return;
 			}
 
 			if (client->state < 3)
 			{
-				Game::Com_Printf(0, "^1botAction: Needs to be connected.\n");
+				Game::Scr_Error("^1botAction: Needs to be connected.\n");
 				return;
 			}
 
 			if (!client->isBot)
 			{
-				Game::Com_Printf(0, "^1botAction: Can only call on a bot!\n");
+				Game::Scr_Error("^1botAction: Can only call on a bot!\n");
 				return;
 			}
 			if (action[0] != '+' && action[0] != '-')
 			{
-				Game::Com_Printf(0, "^1botAction: Sign for action must be '+' or '-'.\n");
+				Game::Scr_Error("^1botAction: Sign for action must be '+' or '-'.\n");
 				return;
 			}
 
@@ -349,16 +349,16 @@ namespace Components
 
 			if (!key_found)
 			{
-				Game::Com_Printf(0, "^1botAction: Unknown action.\n");
+				Game::Scr_Error("^1botAction: Unknown action.\n");
 				return;
 			}
 		});
 
 		Script::AddFunction("botMovement", [](Game::scr_entref_t id) // Usage: <bot> botMovement(<int>, <int>);
 		{
-			if (Game::Scr_GetNumParam() < 2)
+			if (Game::Scr_GetNumParam() != 2 || Game::Scr_GetType(0) != Game::VAR_INTEGER || Game::Scr_GetType(1) != Game::VAR_INTEGER)
 			{
-				Game::Com_Printf(0, "^1botMovement: Needs at least two parameters!\n");
+				Game::Scr_Error("^botMovement: Needs two integer parameters!\n");
 				return;
 			}
 
@@ -371,19 +371,19 @@ namespace Components
 
 			if (clientNum < 0 || clientNum >= sizeof(g_botai) / sizeof(BotMovementInfo_t))
 			{
-				Game::Com_Printf(0, "^1botMovement: Need to call on a player entity!\n");
+				Game::Scr_Error("^1botMovement: Need to call on a player entity!\n");
 				return;
 			}
 
 			if (client->state < 3)
 			{
-				Game::Com_Printf(0, "^1botMovement: Needs to be connected.\n");
+				Game::Scr_Error("^1botMovement: Needs to be connected.\n");
 				return;
 			}
 
 			if (!client->isBot)
 			{
-				Game::Com_Printf(0, "^1botMovement: Can only call on a bot!\n");
+				Game::Scr_Error("^1botMovement: Can only call on a bot!\n");
 				return;
 			}
 
