@@ -255,6 +255,9 @@ namespace Game
 	Scr_Notify_t Scr_Notify = Scr_Notify_t(0x4A4750);
 	Scr_NotifyLevel_t Scr_NotifyLevel = Scr_NotifyLevel_t(0x4D9C30);
 
+	Scr_Error_t Scr_Error = Scr_Error_t(0x61E8B0);
+	Scr_GetType_t Scr_GetType = Scr_GetType_t(0x422900);
+
 	Scr_ClearOutParams_t Scr_ClearOutParams = Scr_ClearOutParams_t(0x4386E0);
 
 	Scr_RegisterFunction_t Scr_RegisterFunction = Scr_RegisterFunction_t(0x492D50);

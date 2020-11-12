@@ -588,6 +588,12 @@ namespace Game
 	typedef int(__cdecl * Scr_GetInt_t)(int);
 	extern Scr_GetInt_t Scr_GetInt;
 
+	typedef int(__cdecl * Scr_GetType_t)(int);
+	extern Scr_GetType_t Scr_GetType;
+
+	typedef void(__cdecl * Scr_Error_t)(const char*);
+	extern Scr_Error_t Scr_Error;
+
 	typedef unsigned int(__cdecl * Scr_GetObject_t)(int);
 	extern Scr_GetObject_t Scr_GetObject;
 
