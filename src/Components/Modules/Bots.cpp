@@ -55,7 +55,18 @@ namespace Components
 		{ "leanleft",   KEY_MASK_LEANLEFT   },
 		{ "leanright",  KEY_MASK_LEANRIGHT  },
 		{ "ads",        KEY_MASK_ADS_MODE   },
-		{ "holdbreath", KEY_MASK_HOLDBREATH }
+		{ "holdbreath", KEY_MASK_HOLDBREATH },
+		{ "use",        KEY_MASK_USE        },
+		{ "0",          8                   },
+		{ "1",          32                  },
+		{ "2",          65536               },
+		{ "3",          131072              },
+		{ "4",          1048576             },
+		{ "5",          2097152             },
+		{ "6",          4194304             },
+		{ "7",          8388608             },
+		{ "8",          16777216            },
+		{ "9",          33554432            },
 	};
 
 	unsigned int Bots::GetClientNum(Game::client_s* cl)
@@ -195,9 +206,9 @@ namespace Components
 			Game::client_t* client = Script::getClientFromEnt(gentity);
 			unsigned int clientNum = GetClientNum(client);
 
-			if (!client->isBot)
+			if (clientNum < 0 || clientNum >= sizeof(g_botai) / sizeof(BotMovementInfo_t))
 			{
-				Game::Com_Printf(0, "^1botStop: Can only call on a bot!\n");
+				Game::Com_Printf(0, "^1botStop: Need to call on a player entity!\n");
 				return;
 			}
 
@@ -207,27 +218,45 @@ namespace Components
 				return;
 			}
 
+			if (!client->isBot)
+			{
+				Game::Com_Printf(0, "^1botStop: Can only call on a bot!\n");
+				return;
+			}
+
 			g_botai[clientNum] = { 0 };
 			g_botai[clientNum].weapon = 1; // prevent them from default to "none" weapon
 		});
 
 		Script::AddFunction("botWeapon", [](Game::scr_entref_t id) // Usage: <bot> botWeapon(<str>);
 		{
+			if (Game::Scr_GetNumParam() < 1)
+			{
+				Game::Com_Printf(0, "^botWeapon: Needs at least one parameter!\n");
+				return;
+			}
+
 			auto weapon = Game::Scr_GetString(0);
 
 			Game::gentity_t* gentity = Script::getEntFromEntRef(id);
 			Game::client_t* client = Script::getClientFromEnt(gentity);
 			unsigned int clientNum = GetClientNum(client);
 
-			if (!client->isBot)
+			if (clientNum < 0 || clientNum >= sizeof(g_botai) / sizeof(BotMovementInfo_t))
 			{
-				Game::Com_Printf(0, "^botWeapon: Can only call on a bot!\n");
+				Game::Com_Printf(0, "^botWeapon: Need to call on a player entity!\n");
 				return;
 			}
 
 			if (client->state < 3)
 			{
 				Game::Com_Printf(0, "^botWeapon: Needs to be connected.\n");
+				return;
+			}
+
+			if (!client->isBot)
+			{
+				Game::Com_Printf(0, "^botWeapon: Can only call on a bot!\n");
 				return;
 			}
 
@@ -244,15 +273,21 @@ namespace Components
 		
 		Script::AddFunction("botAction", [](Game::scr_entref_t id) // Usage: <bot> botAction(<str action>);
 		{
+			if (Game::Scr_GetNumParam() < 1)
+			{
+				Game::Com_Printf(0, "^1botAction: Needs at least one parameter!\n");
+				return;
+			}
+
 			auto action = Game::Scr_GetString(0);
 
 			Game::gentity_t* gentity = Script::getEntFromEntRef(id);
 			Game::client_t* client = Script::getClientFromEnt(gentity);
 			unsigned int clientNum = GetClientNum(client);
 
-			if (!client->isBot)
+			if (clientNum < 0 || clientNum >= sizeof(g_botai) / sizeof(BotMovementInfo_t))
 			{
-				Game::Com_Printf(0, "^1botAction: Can only call on a bot!\n");
+				Game::Com_Printf(0, "^1botAction: Need to call on a player entity!\n");
 				return;
 			}
 
@@ -262,6 +297,11 @@ namespace Components
 				return;
 			}
 
+			if (!client->isBot)
+			{
+				Game::Com_Printf(0, "^1botAction: Can only call on a bot!\n");
+				return;
+			}
 			if (action[0] != '+' && action[0] != '-')
 			{
 				Game::Com_Printf(0, "^1botAction: Sign for action must be '+' or '-'.\n");
@@ -292,6 +332,12 @@ namespace Components
 
 		Script::AddFunction("botMovement", [](Game::scr_entref_t id) // Usage: <bot> botMovement(<int>, <int>);
 		{
+			if (Game::Scr_GetNumParam() < 2)
+			{
+				Game::Com_Printf(0, "^1botMovement: Needs at least two parameters!\n");
+				return;
+			}
+
 			auto forwardInt = Game::Scr_GetInt(0);
 			auto rightInt = Game::Scr_GetInt(1);
 
@@ -299,15 +345,21 @@ namespace Components
 			Game::client_t* client = Script::getClientFromEnt(gentity);
 			unsigned int clientNum = GetClientNum(client);
 
-			if (!client->isBot)
+			if (clientNum < 0 || clientNum >= sizeof(g_botai) / sizeof(BotMovementInfo_t))
 			{
-				Game::Com_Printf(0, "^1botMovement: Can only call on a bot!\n");
+				Game::Com_Printf(0, "^1botMovement: Need to call on a player entity!\n");
 				return;
 			}
 
 			if (client->state < 3)
 			{
 				Game::Com_Printf(0, "^1botMovement: Needs to be connected.\n");
+				return;
+			}
+
+			if (!client->isBot)
+			{
+				Game::Com_Printf(0, "^1botMovement: Can only call on a bot!\n");
 				return;
 			}
 
