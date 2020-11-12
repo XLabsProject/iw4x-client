@@ -167,6 +167,9 @@ namespace Components
 
 		Scheduler::OnFrame([]()
 		{
+			if (!Game::SV_Loaded())
+				return;
+
 			int time = *Game::svs_time;
 			for (int i = 0; i < *Game::svs_numclients; ++i)
 			{
