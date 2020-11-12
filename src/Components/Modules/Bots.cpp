@@ -199,6 +199,27 @@ namespace Components
 			g_botai[i] = { 0 };
 			g_botai[i].weapon = 1; // prevent them from default to "none" weapon
 		}
+		
+		Script::AddFunction("isBot", [](Game::scr_entref_t id) // Usage: <bot> isBot();
+		{
+			Game::gentity_t* gentity = Script::getEntFromEntRef(id);
+			Game::client_t* client = Script::getClientFromEnt(gentity);
+			unsigned int clientNum = GetClientNum(client);
+
+			if (clientNum < 0 || clientNum >= sizeof(g_botai) / sizeof(BotMovementInfo_t))
+			{
+				Game::Com_Printf(0, "^isBot: Need to call on a player entity!\n");
+				return;
+			}
+
+			if (client->state < 3)
+			{
+				Game::Com_Printf(0, "^isBot: Needs to be connected.\n");
+				return;
+			}
+
+			Game::Scr_AddInt(client->isBot);
+		});
 
 		Script::AddFunction("botStop", [](Game::scr_entref_t id) // Usage: <bot> botStop();
 		{
