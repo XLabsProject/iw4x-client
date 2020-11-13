@@ -355,6 +355,12 @@ namespace Components
 
 		Script::AddFunction("PrintConsole", [](Game::scr_entref_t) // gsc: PrintConsole(<string>)
 		{
+			if (Game::Scr_GetNumParam() != 1 || Game::Scr_GetType(0) != Game::VAR_STRING)
+			{
+				Game::Scr_Error("^PrintConsole: Needs one string parameter!\n");
+				return;
+			}
+
 			auto str = Game::Scr_GetString(0);
 
 			Game::Com_Printf(0, str);
@@ -364,6 +370,12 @@ namespace Components
 
 		Script::AddFunction("Exec", [](Game::scr_entref_t) // gsc: Exec(<string>)
 		{
+			if (Game::Scr_GetNumParam() != 1 || Game::Scr_GetType(0) != Game::VAR_STRING)
+			{
+				Game::Scr_Error("^Exec: Needs one string parameter!\n");
+				return;
+			}
+
 			auto str = Game::Scr_GetString(0);
 
 			Command::Execute(str, false);
@@ -393,6 +405,12 @@ namespace Components
 
 		Script::AddFunction("debugBox", [](Game::scr_entref_t)
 		{
+			if (Game::Scr_GetNumParam() != 1 || Game::Scr_GetType(0) != Game::VAR_STRING)
+			{
+				Game::Scr_Error("^debugBox: Needs one string parameter!\n");
+				return;
+			}
+
 			MessageBoxA(nullptr, Game::Scr_GetString(0), "DEBUG", 0);
 		}, true);
 
