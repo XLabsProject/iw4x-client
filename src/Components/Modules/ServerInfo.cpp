@@ -193,30 +193,33 @@ namespace Components
 			Utils::InfoString info = ServerInfo::GetInfo();
 			info.set("challenge", Utils::ParseChallenge(data));
 
-			for (int i = 0; i < atoi(info.get("sv_maxclients").data()); ++i) // Maybe choose 18 here?
+			if (Game::SV_Loaded())
 			{
-				int score = 0;
-				int ping = 0;
-				std::string name;
-
-				if (Dvar::Var("sv_running").get<bool>())
+				for (int i = 0; i < atoi(info.get("sv_maxclients").data()); ++i) // Maybe choose 18 here?
 				{
-					if (Game::svs_clients[i].state < 3) continue;
+					int score = 0;
+					int ping = 0;
+					std::string name;
 
-					score = Game::SV_GameClientNum_Score(i);
-					ping = Game::svs_clients[i].ping;
-					name = Game::svs_clients[i].name;
+					if (Dvar::Var("sv_running").get<bool>())
+					{
+						if (Game::svs_clients[i].state < 3) continue;
+
+						score = Game::SV_GameClientNum_Score(i);
+						ping = Game::svs_clients[i].ping;
+						name = Game::svs_clients[i].name;
+					}
+					else
+					{
+						// Score and ping are irrelevant
+						const char* namePtr = Game::PartyHost_GetMemberName(reinterpret_cast<Game::PartyData_t*>(0x1081C00), i);
+						if (!namePtr || !namePtr[0]) continue;
+
+						name = namePtr;
+					}
+
+					playerList.append(Utils::String::VA("%i %i \"%s\"\n", score, ping, name.data()));
 				}
-				else
-				{
-					// Score and ping are irrelevant
-					const char* namePtr = Game::PartyHost_GetMemberName(reinterpret_cast<Game::PartyData_t*>(0x1081C00), i);
-					if (!namePtr || !namePtr[0]) continue;
-
-					name = namePtr;
-				}
-
-				playerList.append(Utils::String::VA("%i %i \"%s\"\n", score, ping, name.data()));
 			}
 
 			Network::SendCommand(address, "statusResponse", "\\" + info.build() + "\n" + playerList + "\n");

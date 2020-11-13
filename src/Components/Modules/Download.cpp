@@ -738,36 +738,39 @@ namespace Components
 		info["host"] = host.to_json();
 
 		std::vector<json11::Json> players;
-
-		// Build player list
-		for (int i = 0; i < atoi(status.get("sv_maxclients").data()); ++i) // Maybe choose 18 here?
+		
+		if (Game::SV_Loaded())
 		{
-			std::map<std::string, json11::Json> playerInfo;
-			playerInfo["score"] = 0;
-			playerInfo["ping"] = 0;
-			playerInfo["name"] = "";
-
-			if (Dvar::Var("sv_running").get<bool>())
+			// Build player list
+			for (int i = 0; i < atoi(status.get("sv_maxclients").data()); ++i) // Maybe choose 18 here?
 			{
-				if (Game::svs_clients[i].state < 3) continue;
+				std::map<std::string, json11::Json> playerInfo;
+				playerInfo["score"] = 0;
+				playerInfo["ping"] = 0;
+				playerInfo["name"] = "";
 
-				playerInfo["score"] = Game::SV_GameClientNum_Score(i);
-				playerInfo["ping"] = Game::svs_clients[i].ping;
-				playerInfo["name"] = Game::svs_clients[i].name;
+				if (Dvar::Var("sv_running").get<bool>())
+				{
+					if (Game::svs_clients[i].state < 3) continue;
+
+					playerInfo["score"] = Game::SV_GameClientNum_Score(i);
+					playerInfo["ping"] = Game::svs_clients[i].ping;
+					playerInfo["name"] = Game::svs_clients[i].name;
+				}
+				else
+				{
+					// Score and ping are irrelevant
+					const char* namePtr = Game::PartyHost_GetMemberName(reinterpret_cast<Game::PartyData_t*>(0x1081C00), i);
+					if (!namePtr || !namePtr[0]) continue;
+
+					playerInfo["name"] = namePtr;
+				}
+
+				players.push_back(playerInfo);
 			}
-			else
-			{
-				// Score and ping are irrelevant
-				const char* namePtr = Game::PartyHost_GetMemberName(reinterpret_cast<Game::PartyData_t*>(0x1081C00), i);
-				if (!namePtr || !namePtr[0]) continue;
 
-				playerInfo["name"] = namePtr;
-			}
-
-			players.push_back(playerInfo);
+			info["players"] = players;
 		}
-
-		info["players"] = players;
 
 		mg_printf(nc,
 			"HTTP/1.1 200 OK\r\n"
