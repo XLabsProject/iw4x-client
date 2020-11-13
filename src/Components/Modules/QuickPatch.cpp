@@ -423,6 +423,9 @@ namespace Components
 		sv_enableJavelinBug = Game::Dvar_RegisterBool("sv_enableJavelinBug", false, Game::DVAR_FLAG_REPLICATED, "Unpatches the javelin glitch.");
 		Utils::Hook(0x578F52, QuickPatch::JavelinResetHookStub, HOOK_JUMP).install()->quick();
 
+		// Patch elevators
+		Utils::Hook::Set<BYTE>(0x573694, 0x75);
+
 		// Add ultrawide support
 		Utils::Hook(0x0051B13B, QuickPatch::Dvar_RegisterAspectRatioDvar, HOOK_CALL).install()->quick();
 		Utils::Hook(0x005063F3, QuickPatch::SetAspectRatioStub, HOOK_JUMP).install()->quick();
