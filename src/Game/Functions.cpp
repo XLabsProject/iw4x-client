@@ -298,6 +298,8 @@ namespace Game
 	SV_SetConfigstring_t SV_SetConfigstring = SV_SetConfigstring_t(0x4982E0);
 	SV_Loaded_t SV_Loaded = SV_Loaded_t(0x4EE3E0);
 
+	NET_DeferPacketToClient_t NET_DeferPacketToClient = NET_DeferPacketToClient_t(0x4C8AA0);
+
 	SV_ClientThink_t SV_ClientThink = SV_ClientThink_t(0x44ADD0);
 
 	Sys_Error_t Sys_Error = Sys_Error_t(0x4E0200);
@@ -347,6 +349,8 @@ namespace Game
 
 	source_t **sourceFiles = reinterpret_cast<source_t **>(0x7C4A98);
 	keywordHash_t **menuParseKeywordHash = reinterpret_cast<keywordHash_t **>(0x63AE928);
+
+	int* deferredQueueSize = reinterpret_cast<int*>(0x1CC85EC);
 
 	int* svs_numclients = reinterpret_cast<int*>(0x31D938C);
 	client_t* svs_clients = reinterpret_cast<client_t*>(0x31D9390);

@@ -768,6 +768,11 @@ namespace Game
 	typedef void(__cdecl * unzClose_t)(void* handle);
 	extern unzClose_t unzClose;
 
+
+	typedef void(__cdecl* NET_DeferPacketToClient_t)(netadr_t *, msg_t *);
+	extern NET_DeferPacketToClient_t NET_DeferPacketToClient;
+	
+
 	extern XAssetHeader* DB_XAssetPool;
 	extern unsigned int* g_poolSize;
 
@@ -780,6 +785,8 @@ namespace Game
 	extern char*** cmd_argv_sv;
 
 	extern cmd_function_t** cmd_functions;
+
+	extern int* deferredQueueSize;
 
 	extern int* svs_numclients;
 	extern client_t* svs_clients;

@@ -336,6 +336,12 @@ namespace Components
 		}
 	}
 
+	void NET_DeferPacketToClientStub(Game::netadr_t *from, Game::msg_t *msg)
+	{
+		if (msg->cursize < 1404)
+			Game::NET_DeferPacketToClient(from, msg);
+	}
+
 	Network::Network()
 	{
 		AssertSize(Game::netadr_t, 20);
@@ -365,6 +371,9 @@ namespace Components
 
 		// Install interception handler
 		Utils::Hook(0x5AA709, Network::PacketInterceptionHandler, HOOK_CALL).install()->quick();
+
+		// Fix packets causing buffer overflow
+		Utils::Hook(0x6267E3, NET_DeferPacketToClientStub, HOOK_CALL).install()->quick();
 
 		// Prevent recvfrom error spam
 		Utils::Hook(0x46531A, Network::PacketErrorCheck, HOOK_JUMP).install()->quick();
