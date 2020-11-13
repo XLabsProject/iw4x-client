@@ -207,7 +207,7 @@ namespace Components
 		{
 			if (Game::Scr_GetNumParam() != 1 || Game::Scr_GetType(0) != Game::VAR_INTEGER)
 			{
-				Game::Scr_Error("^SetPing: Needs one integer parameter!\n");
+				Game::Scr_Error("^1SetPing: Needs one integer parameter!\n");
 				return;
 			}
 
@@ -252,13 +252,13 @@ namespace Components
 
 			if (clientNum < 0 || clientNum >= sizeof(g_botai) / sizeof(BotMovementInfo_t))
 			{
-				Game::Scr_Error("^isBot: Need to call on a player entity!\n");
+				Game::Scr_Error("^1isBot: Need to call on a player entity!\n");
 				return;
 			}
 
 			if (client->state < 3)
 			{
-				Game::Scr_Error("^isBot: Needs to be connected.\n");
+				Game::Scr_Error("^1isBot: Needs to be connected.\n");
 				return;
 			}
 
@@ -297,7 +297,7 @@ namespace Components
 		{
 			if (Game::Scr_GetNumParam() != 1 || Game::Scr_GetType(0) != Game::VAR_STRING)
 			{
-				Game::Scr_Error("^botWeapon: Needs one string parameter!\n");
+				Game::Scr_Error("^1botWeapon: Needs one string parameter!\n");
 				return;
 			}
 
@@ -309,19 +309,19 @@ namespace Components
 
 			if (clientNum < 0 || clientNum >= sizeof(g_botai) / sizeof(BotMovementInfo_t))
 			{
-				Game::Scr_Error("^botWeapon: Need to call on a player entity!\n");
+				Game::Scr_Error("^1botWeapon: Need to call on a player entity!\n");
 				return;
 			}
 
 			if (client->state < 3)
 			{
-				Game::Scr_Error("^botWeapon: Needs to be connected.\n");
+				Game::Scr_Error("^1botWeapon: Needs to be connected.\n");
 				return;
 			}
 
 			if (!client->isBot)
 			{
-				Game::Scr_Error("^botWeapon: Can only call on a bot!\n");
+				Game::Scr_Error("^1botWeapon: Can only call on a bot!\n");
 				return;
 			}
 
@@ -399,7 +399,7 @@ namespace Components
 		{
 			if (Game::Scr_GetNumParam() != 2 || Game::Scr_GetType(0) != Game::VAR_INTEGER || Game::Scr_GetType(1) != Game::VAR_INTEGER)
 			{
-				Game::Scr_Error("^botMovement: Needs two integer parameters!\n");
+				Game::Scr_Error("^1botMovement: Needs two integer parameters!\n");
 				return;
 			}
 

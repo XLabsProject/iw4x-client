@@ -357,7 +357,7 @@ namespace Components
 		{
 			if (Game::Scr_GetNumParam() != 1 || Game::Scr_GetType(0) != Game::VAR_STRING)
 			{
-				Game::Scr_Error("^PrintConsole: Needs one string parameter!\n");
+				Game::Scr_Error("^1PrintConsole: Needs one string parameter!\n");
 				return;
 			}
 
@@ -372,7 +372,7 @@ namespace Components
 		{
 			if (Game::Scr_GetNumParam() != 1 || Game::Scr_GetType(0) != Game::VAR_STRING)
 			{
-				Game::Scr_Error("^Exec: Needs one string parameter!\n");
+				Game::Scr_Error("^1Exec: Needs one string parameter!\n");
 				return;
 			}
 
@@ -407,7 +407,7 @@ namespace Components
 		{
 			if (Game::Scr_GetNumParam() != 1 || Game::Scr_GetType(0) != Game::VAR_STRING)
 			{
-				Game::Scr_Error("^debugBox: Needs one string parameter!\n");
+				MessageBoxA(nullptr, "debugBox: Needs one string parameter!", "DEBUG", 0);
 				return;
 			}
 
