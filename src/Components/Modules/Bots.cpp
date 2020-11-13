@@ -202,6 +202,47 @@ namespace Components
 			g_botai[i] = { 0 };
 			g_botai[i].weapon = 1; // prevent them from default to "none" weapon
 		}
+
+		Script::AddFunction("SetPing", [](Game::scr_entref_t id) // gsc: self SetPing(<int>)
+		{
+			if (Game::Scr_GetNumParam() != 1 || Game::Scr_GetType(0) != Game::VAR_INTEGER)
+			{
+				Game::Scr_Error("^SetPing: Needs one integer parameter!\n");
+				return;
+			}
+
+			auto ping = Game::Scr_GetInt(0);
+
+			if (ping < 0 || ping > 999)
+			{
+				Game::Scr_Error("^1SetPing: Ping needs to between 0 and 999!\n");
+				return;
+			}
+
+			Game::gentity_t* gentity = Script::getEntFromEntRef(id);
+			Game::client_t* client = Script::getClientFromEnt(gentity);
+			unsigned int clientNum = GetClientNum(client);
+
+			if (clientNum < 0 || clientNum >= sizeof(g_botai) / sizeof(BotMovementInfo_t))
+			{
+				Game::Scr_Error("^1SetPing: Need to call on a player entity!\n");
+				return;
+			}
+
+			if (client->state < 3)
+			{
+				Game::Scr_Error("^1SetPing: Need to call on a connected player!\n");
+				return;
+			}
+
+			if (!client->isBot)
+			{
+				Game::Scr_Error("^1SetPing: Can only call on a bot!\n");
+				return;
+			}
+
+			client->ping = (short)ping;
+		});
 		
 		Script::AddFunction("isBot", [](Game::scr_entref_t id) // Usage: <bot> isBot();
 		{
