@@ -10,6 +10,8 @@ namespace Components
 
 	Utils::Signal<Scheduler::Callback> Script::VMShutdownSignal;
 
+	std::unordered_map<std::string, std::string> ScriptStore;
+
 	void Script::FunctionError()
 	{
 		std::string funcName = Game::SL_ConvertToString(Script::FunctionName);
@@ -281,10 +283,10 @@ namespace Components
 			call Script::GetFunction
 			add esp, 0Ch
 
-		returnSafe:
+			returnSafe:
 			pop edi
-			pop esi
-			retn
+				pop esi
+				retn
 		}
 	}
 
@@ -380,6 +382,86 @@ namespace Components
 
 			Command::Execute(str, false);
 		});
+
+
+		// Script Storage Funcs
+
+		Script::AddFunction("StoreSet", [](Game::scr_entref_t) // gsc: StoreSet(<str key>, <str data>);
+		{
+			if (Game::Scr_GetNumParam() != 2 || Game::Scr_GetType(0) != Game::VAR_STRING || Game::Scr_GetType(1) != Game::VAR_STRING)
+			{
+				Game::Scr_Error("^1StoreAdd: Needs two string parameters!\n");
+				return;
+			}
+
+			auto keyChars = Game::Scr_GetString(0);
+			auto dataChars = Game::Scr_GetString(1);
+
+			auto key = std::string(keyChars);
+			auto data = std::string(dataChars);
+
+			ScriptStore.insert_or_assign(key, data);
+		});
+
+		Script::AddFunction("StoreRemove", [](Game::scr_entref_t) // gsc: StoreRemove(<str key>);
+		{
+			if (Game::Scr_GetNumParam() != 1 || Game::Scr_GetType(0) != Game::VAR_STRING)
+			{
+				Game::Scr_Error("^1StoreRemove: Needs one string parameter!\n");
+				return;
+			}
+
+			auto keyChars = Game::Scr_GetString(0);
+			auto key = std::string(keyChars);
+
+			if (!ScriptStore.contains(key))
+			{
+				Game::Scr_Error(Utils::String::VA("^1StoreRemove: Store does not have key '%s'!\n", keyChars));
+				return;
+			}
+
+			ScriptStore.erase(key);
+		});
+
+		Script::AddFunction("StoreGet", [](Game::scr_entref_t) // gsc: StoreGet(<str key>);
+		{
+			if (Game::Scr_GetNumParam() != 1 || Game::Scr_GetType(0) != Game::VAR_STRING)
+			{
+				Game::Scr_Error("^1StoreGet: Needs one string parameter!\n");
+				return;
+			}
+
+			auto keyChars = Game::Scr_GetString(0);
+			auto key = std::string(keyChars);
+
+			if (!ScriptStore.contains(key))
+			{
+				Game::Scr_Error(Utils::String::VA("^1StoreGet: Store does not have key '%s'!\n", keyChars));
+				return;
+			}
+
+			auto data = ScriptStore.at(key);
+			Game::Scr_AddString(data.c_str());
+		});
+
+		Script::AddFunction("StoreHas", [](Game::scr_entref_t) // gsc: StoreHas(<str key>);
+		{
+			if (Game::Scr_GetNumParam() != 1 || Game::Scr_GetType(0) != Game::VAR_STRING)
+			{
+				Game::Scr_Error("^1StoreHas: Needs one string parameter!\n");
+				return;
+			}
+
+			auto keyChars = Game::Scr_GetString(0);
+			auto key = std::string(keyChars);
+
+			Game::Scr_AddInt(ScriptStore.contains(key));
+		});
+
+		Script::AddFunction("StoreClear", [](Game::scr_entref_t) // gsc: StoreClear();
+		{
+			ScriptStore.clear();
+		});
 	}
 
 	Script::Script()
@@ -450,5 +532,7 @@ namespace Components
 		Script::ScriptNameStack.clear();
 		Script::ScriptFunctions.clear();
 		Script::VMShutdownSignal.clear();
+
+		ScriptStore.clear();
 	}
 }
