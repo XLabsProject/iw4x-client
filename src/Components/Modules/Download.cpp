@@ -968,7 +968,11 @@ namespace Components
 		{
 			Script::AddFunction("httpGet", [](Game::scr_entref_t)
 			{
-				if (Game::Scr_GetNumParam() < 1) return;
+				if (Game::Scr_GetNumParam() != 1 || Game::Scr_GetType(0) != Game::VAR_STRING)
+				{
+					Game::Scr_Error("^1httpGet: Needs one string as a parameter!\n");
+					return;
+				}
 
 				std::string url = Game::Scr_GetString(0);
 				unsigned int object = Game::AllocObject();
@@ -981,7 +985,11 @@ namespace Components
 
 			Script::AddFunction("httpCancel", [](Game::scr_entref_t)
 			{
-				if (Game::Scr_GetNumParam() < 1) return;
+				if (Game::Scr_GetNumParam() != 1 || Game::Scr_GetType(0) != Game::VAR_OBJECT)
+				{
+					Game::Scr_Error("^1httpCancel: Needs one http object as a parameter!\n");
+					return;
+				}
 
 				unsigned int object = Game::Scr_GetObject(0);
 				for (auto& download : Download::ScriptDownloads)
