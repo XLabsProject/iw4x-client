@@ -394,11 +394,8 @@ namespace Components
 				return;
 			}
 
-			auto keyChars = Game::Scr_GetString(0);
-			auto dataChars = Game::Scr_GetString(1);
-
-			auto key = std::string(keyChars);
-			auto data = std::string(dataChars);
+			std::string key = Game::Scr_GetString(0);
+			std::string data = Game::Scr_GetString(1);
 
 			ScriptStore.insert_or_assign(key, data);
 		});
@@ -411,12 +408,11 @@ namespace Components
 				return;
 			}
 
-			auto keyChars = Game::Scr_GetString(0);
-			auto key = std::string(keyChars);
+			std::string key = Game::Scr_GetString(0);
 
 			if (!ScriptStore.contains(key))
 			{
-				Game::Scr_Error(Utils::String::VA("^1StoreRemove: Store does not have key '%s'!\n", keyChars));
+				Game::Scr_Error(Utils::String::VA("^1StoreRemove: Store does not have key '%s'!\n", key.c_str()));
 				return;
 			}
 
@@ -431,12 +427,11 @@ namespace Components
 				return;
 			}
 
-			auto keyChars = Game::Scr_GetString(0);
-			auto key = std::string(keyChars);
+			std::string key = Game::Scr_GetString(0);
 
 			if (!ScriptStore.contains(key))
 			{
-				Game::Scr_Error(Utils::String::VA("^1StoreGet: Store does not have key '%s'!\n", keyChars));
+				Game::Scr_Error(Utils::String::VA("^1StoreGet: Store does not have key '%s'!\n", key.c_str()));
 				return;
 			}
 
@@ -452,8 +447,7 @@ namespace Components
 				return;
 			}
 
-			auto keyChars = Game::Scr_GetString(0);
-			auto key = std::string(keyChars);
+			std::string key = Game::Scr_GetString(0);
 
 			Game::Scr_AddInt(ScriptStore.contains(key));
 		});
