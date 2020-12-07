@@ -236,7 +236,10 @@ namespace Components
 
 		// remove archive flags for cg_hudchatposition
 		Utils::Hook::Xor<BYTE>(0x4F9992, Game::dvar_flag::DVAR_FLAG_SAVED);
-
+		
+		// un-cheat r_fullbright and add archive flags
+		Utils::Hook::Xor<BYTE>(0x519887, Game::dvar_flag::DVAR_FLAG_CHEAT | Game::dvar_flag::DVAR_FLAG_SAVED);
+		
 		// remove write protection from fs_game
 		Utils::Hook::Xor<DWORD>(0x6431EA, Game::dvar_flag::DVAR_FLAG_WRITEPROTECTED);
 
