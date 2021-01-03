@@ -170,10 +170,10 @@ namespace Components
 			"/dev/full",
 			"/dev/sdb",
 			"/dev/sr0",
-			"/dev//dev/tty0",
+			"/dev/tty0",
 			"/dev/urandom",
 			"Snake",
-			"lsb_release -a",
+			"lsb_release -a"
 		};
 
 		static const char* contributors[] =
