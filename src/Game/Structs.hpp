@@ -1,6 +1,6 @@
 #pragma once
 
-#define PROTOCOL 0x95
+#define PROTOCOL 0x96
 #define NUM_CUSTOM_CLASSES 15
 #define SEMANTIC_WATER_MAP 11
 #define FX_ELEM_FIELD_COUNT 90
