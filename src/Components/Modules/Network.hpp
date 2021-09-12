@@ -89,6 +89,8 @@ namespace Components
 
 		static void PacketErrorCheck();
 		static void NET_DeferPacketToClientStub(Game::netadr_t* from, Game::msg_t* msg);
+
+		static void SVExecuteClientMessageStub(Game::client_t* client, Game::msg_t* msg);
 	};
 }
 

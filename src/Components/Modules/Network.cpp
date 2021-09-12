@@ -14,7 +14,7 @@ namespace Components
 	{
 		Game::SockadrToNetadr(addr, &this->address);
 	}
-	bool Network::Address::operator==(const Network::Address &obj) const
+	bool Network::Address::operator==(const Network::Address& obj) const
 	{
 		return Game::NET_CompareAdr(this->address, obj.address);
 	}
@@ -342,6 +342,17 @@ namespace Components
 			Game::NET_DeferPacketToClient(from, msg);
 	}
 
+	void Network::SVExecuteClientMessageStub(Game::client_t* client, Game::msg_t* msg)
+	{
+		const char* message = Utils::String::VA("ServerID: %d, Sequence: %d, Acknowledge: %d, Sent: %d, Message: %d\n", client->serverID,
+							client->reliableSequence, client->reliableAcknowledge,
+							client->reliableSent, client->messageAcknowledge);
+
+		OutputDebugStringA(message);
+
+		Utils::Hook::Call<void(Game::client_t*, Game::msg_t*)>(0x414D40)(client, msg);
+	}
+
 	Network::Network()
 	{
 		AssertSize(Game::netadr_t, 20);
@@ -380,6 +391,8 @@ namespace Components
 
 		// Fix packets causing buffer overflow
 		Utils::Hook(0x6267E3, Network::NET_DeferPacketToClientStub, HOOK_CALL).install()->quick();
+
+		Utils::Hook(0x626996, Network::SVExecuteClientMessageStub, HOOK_CALL).install()->quick();
 
 		Network::Handle("resolveAddress", [](Address address, const std::string& /*data*/)
 		{
