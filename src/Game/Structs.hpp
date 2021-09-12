@@ -4665,7 +4665,9 @@ namespace Game
 		int messageAcknowledge; // 134760
 		char __pad4[1080]; // 134764
 		char name[16]; // 135844
-		char __pad5[12]; // 135860
+		char __pad5[4]; // 135860
+		int lastPacketTime; // 135864
+		int lastConnectTime; // 135868
 		int snapNum; // 135872
 		int __pad6; // 135876
 		short ping; // 135880
