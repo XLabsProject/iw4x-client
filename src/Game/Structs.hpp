@@ -4671,12 +4671,14 @@ namespace Game
 		int snapNum; // 135872
 		int __pad6; // 135876
 		short ping; // 135880
-		char __pad7[133158]; // 135882
+		char __pad7[14]; // 135882
+		int pureAuthentic; // 135896
+		char __pad8[133140]; // 135900
 		int isBot; // 269040
 		int serverID; // 269044
-		char __pad8[9224]; // 269048
+		char __pad9[9224]; // 269048
 		unsigned __int64 steamID; // 278272
-		char __pad9[403592]; // 278280
+		char __pad10[403592]; // 278280
 	} client_t;
 #pragma pack(pop)
 
