@@ -347,7 +347,7 @@ namespace Components
 		if (client->reliableAcknowledge < 0 || client->reliableAcknowledge > 255)
 		{
 			client->reliableAcknowledge = 0;
-			Game::NET_OutOfBandPrint(Game::NS_SERVER, client->netchan.remoteAddress, "disconnect");
+			Network::SendCommand(Game::NS_SERVER, client->netchan.remoteAddress, "error", "EXE_LOSTRELIABLECOMMANDS");
 			return;
 		}
 
