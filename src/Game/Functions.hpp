@@ -495,10 +495,10 @@ namespace Game
 	typedef bool(__cdecl * NET_StringToAdr_t)(const char *s, netadr_t *a);
 	extern NET_StringToAdr_t NET_StringToAdr;
 
-	typedef void(__cdecl* NET_OutOfBandPrint_t)(netsrc_t sock, netadr_t adr, const char *data);
+	typedef void(__cdecl * NET_OutOfBandPrint_t)(netsrc_t sock, netadr_t adr, const char *data);
 	extern NET_OutOfBandPrint_t NET_OutOfBandPrint;
 
-	typedef void(__cdecl* NET_OutOfBandData_t)(netsrc_t sock, netadr_t adr, const char *format, int len);
+	typedef void(__cdecl * NET_OutOfBandData_t)(netsrc_t sock, netadr_t adr, const char *format, int len);
 	extern NET_OutOfBandData_t NET_OutOfBandData;
 
 	typedef void(__cdecl * Live_MPAcceptInvite_t)(_XSESSION_INFO *hostInfo, const int controllerIndex, bool fromGameInvite);
