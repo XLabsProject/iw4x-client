@@ -4662,7 +4662,8 @@ namespace Game
 		int reliableSequence; // 134748
 		int reliableAcknowledge; // 134752
 		int reliableSent; // 134756
-		char __pad4[1084]; // 134760
+		int messageAcknowledge; // 134760
+		char __pad4[1080]; // 134764
 		char name[16]; // 135844
 		char __pad5[12]; // 135860
 		int snapNum; // 135872
@@ -4670,7 +4671,8 @@ namespace Game
 		short ping; // 135880
 		char __pad7[133158]; // 135882
 		int isBot; // 269040
-		char __pad8[9228]; // 269044
+		int serverID; // 269044
+		char __pad8[9224]; // 269048
 		unsigned __int64 steamID; // 278272
 		char __pad9[403592]; // 278280
 	} client_t;
