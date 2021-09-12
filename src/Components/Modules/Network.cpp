@@ -344,7 +344,7 @@ namespace Components
 
 	void Network::SV_ExecuteClientMessageStub(Game::client_t* client, Game::msg_t* msg)
 	{
-		if (client->reliableAcknowledge < 0 || client->reliableAcknowledge > 0xFF)
+		if (client->reliableAcknowledge < 0 || client->reliableAcknowledge > 255)
 		{
 			client->reliableAcknowledge = 0;
 			Game::NET_OutOfBandPrint(Game::NS_SERVER, client->netchan.remoteAddress, "disconnect");
