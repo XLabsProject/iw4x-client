@@ -5,6 +5,8 @@ namespace Assets
 	class IGfxWorld : public Components::AssetHandler::IAsset
 	{
 	public:
+		IGfxWorld();
+
 		virtual Game::XAssetType getType() override { return Game::XAssetType::ASSET_TYPE_GFXWORLD; };
 
 		virtual void save(Game::XAssetHeader header, Components::ZoneBuilder::Zone* builder) override;

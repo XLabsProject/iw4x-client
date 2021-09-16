@@ -341,6 +341,18 @@ namespace Components
 		offset->pointer = *reinterpret_cast<void**>(pointer);
 	}
 
+	void AssetHandler::Dump(Game::XAsset asset)
+	{
+		if (AssetHandler::AssetInterfaces.find(asset.type) != AssetHandler::AssetInterfaces.end())
+		{
+			AssetHandler::AssetInterfaces[asset.type]->dump(asset.header);
+		}
+		else
+		{
+			Logger::Error("No interface for type '%s'!", Game::DB_GetXAssetTypeName(asset.type));
+		}
+	}
+
 	void AssetHandler::ZoneSave(Game::XAsset asset, ZoneBuilder::Zone* builder)
 	{
 		if (AssetHandler::AssetInterfaces.find(asset.type) != AssetHandler::AssetInterfaces.end())

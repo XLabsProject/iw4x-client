@@ -32,3 +32,6 @@
 [submodule "deps/dxsdk"]
 	path = deps/dxsdk
 	url = https://github.com/devKlausS/dxsdk.git
+[submodule "deps/iw4oa"]
+	path = deps/iw4oa
+	url = https://github.com/Rackover/iw4x-open-assets

@@ -10,6 +10,167 @@ namespace Assets
         if (!header->data) this->loadBinary(header, name, builder); // Check if we need to import a new one into the game
     }
 
+	void IMaterialTechniqueSet::dump(Game::XAssetHeader header)
+	{
+        auto iw4Techset = header.techniqueSet;
+
+        Utils::Stream buffer;
+        buffer.saveArray("IW4xTSET", 8);
+        buffer.saveObject(IW4X_TECHSET_VERSION);
+
+        buffer.saveObject(*iw4Techset);
+
+        if (iw4Techset->name)
+        {
+            buffer.saveString(iw4Techset->name);
+        }
+
+        for (int i = 0; i < 48; i++)
+        {
+            if (iw4Techset->techniques[i])
+            {
+                buffer.saveString(iw4Techset->techniques[i]->name);
+                IMaterialTechniqueSet::dumpTechnique(iw4Techset->techniques[i]);
+            }
+        }
+
+        Utils::IO::WriteFile(Utils::String::VA("dump/techsets/%s.iw4xTS", iw4Techset->name), buffer.toBuffer());
+	}
+
+    void IMaterialTechniqueSet::dumpVS(Game::MaterialVertexShader* vs)
+    {
+        if (!vs) return;
+        Utils::Stream buffer;
+        buffer.saveArray("IW4xVERT", 8);
+        buffer.saveObject(IW4X_TECHSET_VERSION);
+
+        buffer.saveObject(*vs);
+
+        if (vs->name)
+        {
+            buffer.saveString(vs->name);
+        }
+
+        buffer.saveArray(vs->prog.loadDef.program, vs->prog.loadDef.programSize);
+
+        Utils::IO::WriteFile(Utils::String::VA("dump/vs/%s.iw4xVS", vs->name), buffer.toBuffer());
+    }
+
+    void IMaterialTechniqueSet::dumpPS(Game::MaterialPixelShader* ps)
+    {
+        if (!ps) return;
+        Utils::Stream buffer;
+        buffer.saveArray("IW4xPIXL", 8);
+        buffer.saveObject(IW4X_TECHSET_VERSION);
+
+        buffer.saveObject(*ps);
+
+        if (ps->name)
+        {
+            buffer.saveString(ps->name);
+        }
+
+        buffer.saveArray(ps->prog.loadDef.program, ps->prog.loadDef.programSize);
+
+        Utils::IO::WriteFile(Utils::String::VA("dump/ps/%s.iw4xPS", ps->name), buffer.toBuffer());
+    }
+
+    void IMaterialTechniqueSet::dumpTechnique(Game::MaterialTechnique* tech)
+    {
+        AssertSize(Game::MaterialPass, 20);
+        if (!tech) return;
+        Utils::Stream buffer;
+        buffer.saveArray("IW4xTECH", 8);
+        buffer.saveObject(IW4X_TECHSET_VERSION);
+
+        buffer.saveObject(tech->flags);
+        buffer.saveObject(tech->passCount);
+
+        buffer.saveArray(tech->passArray, tech->passCount);
+
+        for (int i = 0; i < tech->passCount; i++)
+        {
+            Game::MaterialPass* pass = &tech->passArray[i];
+
+            if (pass->vertexDecl)
+            {
+                std::string name = IMaterialTechniqueSet::dumpDecl(pass->vertexDecl);
+                buffer.saveString(name.data());
+            }
+
+            if (pass->vertexShader)
+            {
+                buffer.saveString(pass->vertexShader->name);
+                IMaterialTechniqueSet::dumpVS(pass->vertexShader);
+            }
+
+            if (pass->pixelShader)
+            {
+                buffer.saveString(pass->pixelShader->name);
+                IMaterialTechniqueSet::dumpPS(pass->pixelShader);
+            }
+
+            buffer.saveArray(pass->args, pass->perPrimArgCount + pass->perObjArgCount + pass->stableArgCount);
+
+#define MTL_ARG_LITERAL_PIXEL_CONST     0x0
+#define MTL_ARG_LITERAL_VERTEX_CONST    0x1
+#define MTL_ARG_CODE_VERTEX_CONST       0x3
+#define MTL_ARG_CODE_PIXEL_CONST        0x5
+
+            for (int k = 0; k < pass->perPrimArgCount + pass->perObjArgCount + pass->stableArgCount; ++k)
+            {
+                Game::MaterialShaderArgument* arg = &pass->args[k];
+                if (arg->type == MTL_ARG_LITERAL_VERTEX_CONST || arg->type == MTL_ARG_LITERAL_PIXEL_CONST)
+                {
+                    buffer.saveArray(arg->u.literalConst, 4);
+                }
+
+                if (arg->type == MTL_ARG_CODE_VERTEX_CONST || arg->type == MTL_ARG_CODE_PIXEL_CONST)
+                {
+                    unsigned short val = arg->u.codeConst.index;
+                    buffer.saveObject(val);
+                    buffer.saveObject(arg->u.codeConst.firstRow);
+                    buffer.saveObject(arg->u.codeConst.rowCount);
+                }
+            }
+        }
+
+        Utils::IO::WriteFile(Utils::String::VA("dump/techniques/%s.iw4xTech", tech->name), buffer.toBuffer());
+    }
+
+    std::string IMaterialTechniqueSet::dumpDecl(Game::MaterialVertexDeclaration* decl)
+    {
+        if (!decl) return "";
+
+        static int numDecls = 0;
+        Utils::Memory::Allocator allocator;
+
+        Game::MaterialVertexDeclaration* iw4Decl = allocator.allocate<Game::MaterialVertexDeclaration>();
+
+        // TODO: figure out how to actually name these things
+        iw4Decl->name = allocator.duplicateString(Utils::String::VA("iw4xDecl%d", numDecls++));
+        iw4Decl->hasOptionalSource = decl->hasOptionalSource;
+        iw4Decl->streamCount = decl->streamCount;
+
+        memcpy(&iw4Decl->routing, &decl->routing, sizeof(Game::MaterialVertexStreamRouting));
+
+        Utils::Stream buffer;
+        buffer.saveArray("IW4xDECL", 8);
+        buffer.saveObject(IW4X_TECHSET_VERSION);
+
+        buffer.saveObject(*iw4Decl);
+
+        if (iw4Decl->name)
+        {
+            buffer.saveString(iw4Decl->name);
+        }
+
+        Utils::IO::WriteFile(Utils::String::VA("dump/decl/%s.iw4xDECL", iw4Decl->name), buffer.toBuffer());
+
+        return iw4Decl->name;
+    }
+
+
     void IMaterialTechniqueSet::loadNative(Game::XAssetHeader* header, const std::string& name, Components::ZoneBuilder::Zone* /*builder*/)
     {
         header->techniqueSet = Components::AssetHandler::FindOriginalAsset(this->getType(), name.data()).techniqueSet;

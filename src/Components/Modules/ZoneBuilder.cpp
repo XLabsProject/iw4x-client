@@ -10,6 +10,9 @@ namespace Components
 	bool ZoneBuilder::Terminate;
 	std::thread ZoneBuilder::CommandThread;
 
+	Dvar::Var ZoneBuilder::MatchTechsetsDvar;
+	Dvar::Var ZoneBuilder::PreferDiskAssetsDvar;
+
 	ZoneBuilder::Zone::Zone(const std::string& name) : indexStart(0), externalSize(0),
 
 		// Reserve 100MB by default.
@@ -517,7 +520,8 @@ namespace Components
 
 		if (this->findAsset(Game::XAssetType::ASSET_TYPE_RAWFILE, this->branding.name) != -1)
 		{
-			Logger::Error("Unable to add branding. Asset '%s' already exists!", this->branding.name);
+			Logger::Print("Unable to add branding. Asset '%s' already exists!", this->branding.name);
+			return;
 		}
 
 		Game::XAssetHeader header = { &this->branding };
@@ -1522,6 +1526,62 @@ namespace Components
 				Logger::Print("%s\n", json11::Json(images).dump().data());
 				Logger::Print("------------------- END IWI DUMP -------------------\n");
 			});
+
+			Command::Add("listStreamedSounds", [](Command::Params* params)
+			{
+				int zoneIndex = -1;
+
+				if (params->length() > 1)
+				{
+					zoneIndex = std::stoi(params->get(1));
+				}
+
+				Game::DB_EnumXAssetEntries(Game::ASSET_TYPE_SOUND, [zoneIndex](Game::XAssetEntry* entry)
+				{
+					if (entry && (zoneIndex < 0 || entry->zoneIndex == zoneIndex))
+					{
+						auto header = entry->asset.header;
+						for (size_t i = 0; i < header.sound->count; i++) 
+						{
+							auto sound = header.sound->head[i];
+							if (sound.soundFile->exists && sound.soundFile->type == Game::snd_alias_type_t::SAT_STREAMED)
+							{
+								Logger::Print("(zone %d) sound\\%s\\%s\n", entry->zoneIndex, sound.soundFile->u.streamSnd.filename.info.raw.dir, sound.soundFile->u.streamSnd.filename.info.raw.name);
+							}
+						}
+					}
+				}, false, true);
+			});
+
+			Command::Add("listRawImages", [](Command::Params* params)
+			{
+				int zoneIndex = -1;
+
+				if (params->length() > 1)
+				{
+					zoneIndex = std::stoi(params->get(1));
+				}
+
+				Game::DB_EnumXAssetEntries(Game::ASSET_TYPE_IMAGE, [zoneIndex](Game::XAssetEntry* entry)
+				{
+					if (entry && (zoneIndex < 0 || entry->zoneIndex == zoneIndex))
+					{
+						auto header = entry->asset.header;
+						auto image = header.image;
+
+						if (image && (image->category == Game::ImageCategory::IMG_CATEGORY_LOAD_FROM_FILE || image->category == Game::ImageCategory::IMG_CATEGORY_RAW))
+						{
+							Logger::Print("(zone %d) %s\\%s.iwi\n", entry->zoneIndex, "images", image->name);
+						}
+
+					}
+				}, false, true);
+			});
+			
+			ZoneBuilder::PreferDiskAssetsDvar = Dvar::Register<bool>("zb_prefer_disk_assets", false, Game::DVAR_FLAG_NONE, "Should zonebuilder prefer in-memory assets (requirements) or disk assets, when both are present?");
+			ZoneBuilder::MatchTechsetsDvar = Dvar::Register<bool>("zb_ensure_material_techsets", false, Game::DVAR_FLAG_NONE, "Should zonebuilder match and swap techsets when loading a material?");
+
+
 		}
 	}
 

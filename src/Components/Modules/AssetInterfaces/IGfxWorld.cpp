@@ -230,7 +230,7 @@ namespace Assets
 							if (aabbTree->smodelIndexes)
 							{
 								unsigned short* oldPointer = aabbTree->smodelIndexes;
-								if(builder->getAllocator()->isPointerMapped(oldPointer))
+								if (builder->getAllocator()->isPointerMapped(oldPointer))
 								{
 									// We still have to read it
 									reader.readArray<unsigned short>(aabbTree->smodelIndexCount);
@@ -950,7 +950,7 @@ namespace Assets
 		}
 
 		buffer->popBlock();
-        SaveLogExit();
+		SaveLogExit();
 	}
 
 	void IGfxWorld::save(Game::XAssetHeader header, Components::ZoneBuilder::Zone* builder)
@@ -1350,5 +1350,47 @@ namespace Assets
 		//buffer->setPointerAssertion(false);
 		buffer->popBlock();
 		SaveLogExit();
+	}
+
+	IGfxWorld::IGfxWorld() : Components::AssetHandler::IAsset()
+	{
+		Components::Command::Add("dump_gfxworld_smodels", [this](Components::Command::Params*)
+		{
+			Game::GfxWorld* world = nullptr;
+			Game::DB_EnumXAssets(Game::XAssetType::ASSET_TYPE_GFXWORLD, [](Game::XAssetHeader header, void* world)
+			{
+				*reinterpret_cast<Game::GfxWorld**>(world) = header.gfxWorld;
+			}, &world, false);
+
+			if (world)
+			{
+				Components::Logger::Print("Dumping models for world %s...\n", world->name);
+
+				std::vector<std::string> models{};
+
+				// Static models
+				for (size_t i = 0; i < world->dpvs.smodelCount; i++)
+				{
+					auto staticModel = world->dpvs.smodelDrawInsts[i];
+					if (staticModel.model)
+					{
+						auto modelName = std::string(staticModel.model->name);
+						if (std::find(models.begin(), models.end(), modelName) == models.end())
+						{
+							Game::XAsset xAsset{};
+							xAsset.type = Game::XAssetType::ASSET_TYPE_XMODEL;
+							xAsset.header = Game::XAssetHeader{};
+							xAsset.header.model = staticModel.model;
+							Components::AssetHandler::Dump(xAsset);
+
+							models.emplace_back(modelName);
+							Components::Logger::Print("%s ", modelName.data());
+						}
+					}
+				}
+
+				Components::Logger::Print("\nDone dumping %d unique models!\n", models.size());
+			}
+		});
 	}
 }

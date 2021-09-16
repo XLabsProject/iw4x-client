@@ -237,11 +237,26 @@ namespace Components
 			}
 		}
 
+		if (type == Game::XAssetType::ASSET_TYPE_RAWFILE)
+		{
+			if (Flags::HasFlag("dump"))
+			{
+				if (asset.rawfile->compressedLen)
+				{
+					Utils::IO::WriteFile(Utils::String::VA("dump/%s", name.data()), Utils::Compression::ZLib::Decompress(std::string(asset.rawfile->buffer, asset.rawfile->compressedLen)));
+				}
+				else
+				{
+					Utils::IO::WriteFile(Utils::String::VA("dump/%s", name.data()), asset.rawfile->buffer);
+				}
+			}
+		}
+
 		if (type == Game::XAssetType::ASSET_TYPE_MAP_ENTS)
 		{
 			if (Flags::HasFlag("dump"))
 			{
-				Utils::IO::WriteFile(Utils::String::VA("raw/%s.ents", name.data()), asset.mapEnts->entityString);
+				Utils::IO::WriteFile(Utils::String::VA("dump/%s.ents", name.data()), asset.mapEnts->entityString);
 			}
 
 			static std::string mapEntities;
@@ -253,7 +268,7 @@ namespace Components
 				asset.mapEnts->numEntityChars = mapEntities.size() + 1;
 			}
 		}
-		
+
 		// This is broken
 		if ((type == Game::XAssetType::ASSET_TYPE_MENU || type == Game::XAssetType::ASSET_TYPE_MENULIST) && Zones::Version() >= 359)
 		{

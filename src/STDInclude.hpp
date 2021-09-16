@@ -82,7 +82,7 @@ template <size_t S> class Sizer { };
 #pragma warning(disable: 6387)
 
 #include <zlib.h>
-
+#include <iw4oa.h>
 #include <curses.h>
 #include <mongoose.h>
 #include <json11.hpp>

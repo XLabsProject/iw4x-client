@@ -112,6 +112,7 @@ namespace Components
 			Game::RawFile branding;
 
 			size_t assetDepth;
+			bool ensureTechsets = false;
 		};
 
 		ZoneBuilder();
@@ -130,6 +131,9 @@ namespace Components
 		static std::vector<std::pair<Game::XAssetType, std::string>> EndAssetTrace();
 
 		static Game::XAssetHeader GetEmptyAssetIfCommon(Game::XAssetType type, const std::string& name, Zone* builder);
+
+		static Dvar::Var MatchTechsetsDvar;
+		static Dvar::Var PreferDiskAssetsDvar;
 
 	private:
 		static int StoreTexture(Game::GfxImageLoadDef **loadDef, Game::GfxImage *image);

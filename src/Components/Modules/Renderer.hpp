@@ -35,10 +35,22 @@ namespace Components
 
 		static int DrawTechsetForMaterial(int a1, float a2, float a3, const char* material, Game::vec4_t* color, int a6);
 
+		static void DebugDrawTriggers();
+		static void DebugDrawSceneModelCollisions();
+		static void DebugDrawModelsBoundingBoxes();
+		static void DebugDrawModelNames();
+		static void DebugDrawAABBTrees();
+
 		static Utils::Signal<Scheduler::Callback> EndRecoverDeviceSignal;
 		static Utils::Signal<Scheduler::Callback> BeginRecoverDeviceSignal;
 
 		static Utils::Signal<BackendCallback> BackendFrameSignal;
 		static Utils::Signal<BackendCallback> SingleBackendFrameSignal;
+
+		static Dvar::Var DrawTriggers;
+		static Dvar::Var DrawSceneModelCollisions;
+		static Dvar::Var DrawModelsBoundingBoxes;
+		static Dvar::Var DrawModelsNames;
+		static Dvar::Var DrawAABBTrees;
 	};
 }

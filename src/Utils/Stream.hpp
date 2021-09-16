@@ -104,6 +104,11 @@ namespace Utils
 			return save(array, sizeof(T), count);
 		}
 
+		template <typename T> inline char* saveObject(const T& value)
+		{
+			return saveArray(&value, 1);
+		}
+
 		char* saveString(const std::string& string);
 		char* saveString(const char* string);
 		char* saveString(const char* string, size_t len);

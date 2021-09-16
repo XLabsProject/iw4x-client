@@ -278,7 +278,7 @@ namespace Components
 			const_cast<char*>("wide 16:10"),
 			const_cast<char*>("wide 16:9"),
 			const_cast<char*>("custom"),
-			nullptr,
+			nullptr
 		};
 
 		// register custom aspect ratio dvar
@@ -781,11 +781,11 @@ namespace Components
 					const char* formatString;
 					if (type == Game::ASSET_TYPE_PIXELSHADER)
 					{
-						formatString = "userraw/shader_bin/%.ps";
+						formatString = "userraw/shader_bin/%s.ps";
 					}
 					else
 					{
-						formatString = "userraw/shader_bin/%.vs";
+						formatString = "userraw/shader_bin/%s.vs";
 					}
 
 					if (Utils::IO::FileExists(Utils::String::VA(formatString, name.data()))) return;
@@ -934,204 +934,6 @@ namespace Components
 				Utils::IO::WriteFile("userraw/logs/matlog.txt", buffer);
 			}
 		});
-
-		Scheduler::OnFrame([]()
-		{
-			if (!Game::CL_IsCgameInitialized() || !Dvar::Var("r_drawAabbTrees").get<bool>()) return;
-
-			float cyan[4] = { 0.0f, 0.5f, 0.5f, 1.0f };
-			float red[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
-
-			Game::clipMap_t* clipMap = *reinterpret_cast<Game::clipMap_t**>(0x7998E0);
-			//Game::GfxWorld* gameWorld = *reinterpret_cast<Game::GfxWorld**>(0x66DEE94);
-			if (!clipMap) return;
-
-            for (unsigned short i = 0; i < clipMap->smodelNodeCount; ++i)
-            {
-                Game::R_AddDebugBounds(cyan, &clipMap->smodelNodes[i].bounds);
-            }
-
-            for (unsigned int i = 0; i < clipMap->numStaticModels; i += 2)
-            {
-                Game::R_AddDebugBounds(red, &clipMap->staticModelList[i].absBounds);
-            }			
-		});
-
-		Dvar::OnInit([]
-			{
-				Dvar::Register<bool>("r_drawSceneModelBoundingBoxes", false, Game::DVAR_FLAG_CHEAT, "Draw scene model bounding boxes");
-				Dvar::Register<bool>("r_drawSceneModelCollisions", false, Game::DVAR_FLAG_CHEAT, "Draw scene model collisions");
-				Dvar::Register<bool>("r_drawTriggers", false, Game::DVAR_FLAG_CHEAT, "Draw triggers");
-				Dvar::Register<bool>("r_drawModelNames", false, Game::DVAR_FLAG_CHEAT, "Draw all model names");
-				Dvar::Register<bool>("r_drawAabbTrees", false, Game::DVAR_FLAG_USERCREATED, "Draw aabb trees");
-			});
-
-		Scheduler::OnFrame([]()
-			{
-				if (!Game::CL_IsCgameInitialized() || !Dvar::Var("r_drawModelNames").get<bool>()) return;
-
-				float sceneModelsColor[4] = { 1.0f, 1.0f, 0.0f, 1.0f };
-				float dobjsColor[4] = { 0.0f, 1.0f, 1.0f, 1.0f };
-				float staticModelsColor[4] = { 1.0f, 0.0f, 1.0f, 1.0f };
-
-				auto mapName = Dvar::Var("mapname").get<const char*>();
-				auto* scene = Game::scene;
-				auto world = Game::DB_FindXAssetEntry(Game::XAssetType::ASSET_TYPE_GFXWORLD, Utils::String::VA("maps/mp/%s.d3dbsp", mapName))->asset.header.gfxWorld;
-
-				for (auto i = 0; i < scene->sceneModelCount; i++)
-				{
-					if (!scene->sceneModel[i].model)
-						continue;
-
-					Game::R_AddDebugString(sceneModelsColor, scene->sceneModel[i].placement.base.origin, 1.0, scene->sceneModel[i].model->name);
-				}	
-
-				for (auto i = 0; i < scene->sceneDObjCount; i++)
-				{
-					if (scene->sceneDObj[i].obj) {
-						for (int j = 0; j < scene->sceneDObj[i].obj->numModels; j++)
-						{
-							Game::R_AddDebugString(dobjsColor, scene->sceneDObj[i].placement.origin, 1.0, scene->sceneDObj[i].obj->models[j]->name);
-						}
-					}
-				}
-
-				// Static models
-				for (size_t i = 0; i < world->dpvs.smodelCount; i++)
-				{
-					auto staticModel = world->dpvs.smodelDrawInsts[i];
-					if (staticModel.model) {
-						Game::R_AddDebugString(staticModelsColor, staticModel.placement.origin, 1.0, staticModel.model->name);
-					}
-				}
-			});
-
-		Scheduler::OnFrame([]()
-		{
-			if (!Game::CL_IsCgameInitialized() || !Dvar::Var("r_drawSceneModelBoundingBoxes").get<bool>()) return;
-			
-            float red[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
-            float blue[4] = { 0.0f, 0.0f, 1.0f, 1.0f };
-
-			auto* scene = Game::scene;
-
-			for(auto i = 0; i < scene->sceneModelCount; i++)
-			{
-				if(!scene->sceneModel[i].model)
-					continue;
-
-				auto b = scene->sceneModel[i].model->bounds;
-				b.midPoint[0] += scene->sceneModel[i].placement.base.origin[0];
-				b.midPoint[1] += scene->sceneModel[i].placement.base.origin[1];
-				b.midPoint[2] += scene->sceneModel[i].placement.base.origin[2];
-				b.halfSize[0] *= scene->sceneModel[i].placement.scale;
-				b.halfSize[1] *= scene->sceneModel[i].placement.scale;
-				b.halfSize[2] *= scene->sceneModel[i].placement.scale;
-				Game::R_AddDebugBounds(red, &b, &scene->sceneModel[i].placement.base.quat);
-			}
-
-			for(auto i = 0; i < scene->sceneDObjCount; i++)
-			{
-				scene->sceneDObj[i].cull.bounds.halfSize[0] = std::abs(scene->sceneDObj[i].cull.bounds.halfSize[0]);
-				scene->sceneDObj[i].cull.bounds.halfSize[1] = std::abs(scene->sceneDObj[i].cull.bounds.halfSize[1]);
-				scene->sceneDObj[i].cull.bounds.halfSize[2] = std::abs(scene->sceneDObj[i].cull.bounds.halfSize[2]);
-
-				if (scene->sceneDObj[i].cull.bounds.halfSize[0] < 0 ||
-					scene->sceneDObj[i].cull.bounds.halfSize[1] < 0 ||
-					scene->sceneDObj[i].cull.bounds.halfSize[2] < 0) {
-
-					Components::Logger::Print("WARNING: Negative half size for DOBJ %s, this will cause culling issues!", scene->sceneDObj[i].obj->models[0]->name);
-				}
-
-				Game::R_AddDebugBounds(blue, &scene->sceneDObj[i].cull.bounds);
-			}
-		});
-
-		Scheduler::OnFrame([]()
-			{
-				if (!Game::CL_IsCgameInitialized()) return;
-				if (!Dvar::Var("r_drawSceneModelCollisions").get<bool>()) return;
-
-				float green[4] = { 0.0f, 1.0f, 0.0f, 1.0f };
-
-				auto* scene = Game::scene;
-
-				for (auto i = 0; i < scene->sceneModelCount; i++)
-				{
-					if (!scene->sceneModel[i].model)
-						continue;
-
-					for (auto j = 0; j < scene->sceneModel[i].model->numCollSurfs; j++) {
-						auto b = scene->sceneModel[i].model->collSurfs[j].bounds;
-						b.midPoint[0] += scene->sceneModel[i].placement.base.origin[0];
-						b.midPoint[1] += scene->sceneModel[i].placement.base.origin[1];
-						b.midPoint[2] += scene->sceneModel[i].placement.base.origin[2];
-						b.halfSize[0] *= scene->sceneModel[i].placement.scale;
-						b.halfSize[1] *= scene->sceneModel[i].placement.scale;
-						b.halfSize[2] *= scene->sceneModel[i].placement.scale;
-
-						Game::R_AddDebugBounds(green, &b, &scene->sceneModel[i].placement.base.quat);
-					}
-				}
-			});
-
-		Scheduler::OnFrame([]()
-		{
-			if (!Game::CL_IsCgameInitialized() || !Dvar::Var("r_drawTriggers").get<bool>()) return;
-
-            float hurt[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
-            float hurtTouch[4] = { 0.75f, 0.0f, 0.0f, 1.0f };
-            float damage[4] = { 0.0f, 0.0f, 1.0f, 1.0f };
-            float once[4] = { 0.0f, 1.0f, 1.0f, 1.0f };
-            float multiple[4] = { 0.0f, 1.0f, 0.0f, 1.0f };
-
-			auto* entities = Game::g_entities;
-			for(auto i = 0u; i < 0x800; i++)
-			{
-				auto* ent = &entities[i];
-
-				if(ent->r.isInUse)
-				{
-					Game::Bounds b = ent->r.box;
-					b.midPoint[0] += ent->r.currentOrigin[0];
-					b.midPoint[1] += ent->r.currentOrigin[1];
-					b.midPoint[2] += ent->r.currentOrigin[2];
-
-					switch(ent->handler)
-					{
-					case Game::ENT_HANDLER_TRIGGER_HURT:
-						Game::R_AddDebugBounds(hurt, &b);
-						break;
-
-					case Game::ENT_HANDLER_TRIGGER_HURT_TOUCH:
-						Game::R_AddDebugBounds(hurtTouch, &b);
-						break;
-
-					case Game::ENT_HANDLER_TRIGGER_DAMAGE:
-						Game::R_AddDebugBounds(damage, &b);
-						break;
-
-					case Game::ENT_HANDLER_TRIGGER_MULTIPLE:
-						if(ent->spawnflags & 0x40)
-						    Game::R_AddDebugBounds(once, &b);
-						else
-							Game::R_AddDebugBounds(multiple, &b);
-						break;
-
-					default:
-						float rv = std::min((float)ent->handler, (float)5) / 5;
-						float gv = std::clamp((float)ent->handler-5, (float)0, (float)5) / 5;
-						float bv = std::clamp((float)ent->handler - 10, (float)0, (float)5) / 5;
-
-						float color[4] = { rv, gv, bv, 1.0f };
-
-						Game::R_AddDebugBounds(color, &b);
-						break;
-					}
-				}
-			}
-		});
-
 
 		// Dvars
 		Dvar::Register<bool>("ui_streamFriendly", false, Game::DVAR_FLAG_SAVED, "Stream friendly UI");

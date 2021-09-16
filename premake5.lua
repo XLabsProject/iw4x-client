@@ -185,6 +185,7 @@ newaction {
 
 depsBasePath = "./deps"
 
+require "premake/iw4oa"
 require "premake/json11"
 require "premake/libtomcrypt"
 require "premake/libtommath"
@@ -196,6 +197,10 @@ require "premake/udis86"
 require "premake/iw4mvm"
 require "premake/dxsdk"
 
+iw4oa.setup
+{
+	source = path.join(depsBasePath, "iw4oa"),
+}
 json11.setup
 {
 	source = path.join(depsBasePath, "json11"),
@@ -339,6 +344,7 @@ workspace "iw4x"
 		buildoptions { "/Zm200" }
 
 		-- Dependency libraries
+		iw4oa.import()
 		json11.import()
 		libtomcrypt.import()
 		libtommath.import()
@@ -453,6 +459,7 @@ workspace "iw4x"
 		]]
 
 	group "External dependencies"
+		iw4oa.project()
 		json11.project()
 		libtomcrypt.project()
 		libtommath.project()

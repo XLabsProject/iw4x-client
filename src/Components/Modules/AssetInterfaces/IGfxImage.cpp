@@ -146,6 +146,58 @@ namespace Assets
 		}
 	}
 
+	void IGfxImage::dump(Game::XAssetHeader header)
+	{
+		auto image = header.image;
+
+		if (!image) return;
+		std::string name = image->name;
+
+		if (image->texture.loadDef && image->texture.loadDef->resourceSize > 0)
+		{
+			if (name[0] == '*') name.erase(name.begin());
+
+			Utils::Stream buffer;
+			buffer.saveArray("IW4xImg" IW4X_IMG_VERSION, 8); // just stick version in the magic since we have an extra char
+
+			buffer.saveObject(static_cast<unsigned char>(image->mapType));
+			buffer.saveObject(image->semantic);
+			buffer.saveObject(image->category);
+
+			buffer.saveObject(image->texture.loadDef->resourceSize);
+			buffer.save(image->texture.loadDef, 16 + image->texture.loadDef->resourceSize);
+
+			Utils::IO::WriteFile(Utils::String::VA("dump/images/%s.iw4xImage", name.data()), buffer.toBuffer());
+		}
+		else
+		{
+			Components::FileSystem::File img(Utils::String::VA("images/%s.iwi", image->name));
+
+			if (!img.exists())
+			{
+				// Ignore that
+				if (Utils::String::StartsWith(image->name, "watersetup")) return;
+
+				Components::Logger::Print("Image %s not found, mapping to normalmap!\n", name.data());
+				img = Components::FileSystem::File("images/$identitynormalmap.iwi");
+			}
+
+			if (img.exists())
+			{
+				Game::GfxImageFileHeader fileHeader = *reinterpret_cast<const Game::GfxImageFileHeader*>(img.getBuffer().data());
+
+				std::string buffer(reinterpret_cast<char*>(&fileHeader), sizeof Game::GfxImageFileHeader);
+				buffer.append(img.getBuffer().data() + (sizeof Game::GfxImageFileHeader), img.getBuffer().size() - (sizeof Game::GfxImageFileHeader));
+
+				Utils::IO::WriteFile(Utils::String::VA("dump/images/%s.iwi", image->name), buffer);
+			}
+			else
+			{
+				Components::Logger::Print("Unable to map to normalmap, this should not happen!\n");
+			}
+		}
+	}
+
 	void IGfxImage::save(Game::XAssetHeader header, Components::ZoneBuilder::Zone* builder)
 	{
 		AssertSize(Game::GfxImage, 32);
