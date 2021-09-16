@@ -22,6 +22,7 @@ namespace Components
 		static std::vector<Game::GfxImage*> ImageTable;
 		static std::vector<Game::Material*> MaterialTable;
 		static int ImageNameLength;
+		static std::map<std::string, std::string> TechsetSwaps;
 
 		static Utils::Hook ImageVersionCheckHook;
 		static void ImageVersionCheck();
@@ -43,5 +44,7 @@ namespace Components
 		static int MaterialComparePrint(Game::Material* m1, Game::Material* m2);
 
 		static void DeleteAll();
+
+		static void Load_MaterialTechniqueSetAsset(Game::MaterialTechniqueSet** pptr);
 	};
 }

@@ -216,23 +216,25 @@ namespace Components
 		}
 
 		// Fix shader const stuff
-		if (type == Game::XAssetType::ASSET_TYPE_TECHNIQUE_SET && Zones::Version() >= 359 && Zones::Version() < 448)
-		{
-			for (int i = 0; i < 48; ++i)
+		if (type == Game::XAssetType::ASSET_TYPE_TECHNIQUE_SET){
+			if (Zones::Version() >= 359 && Zones::Version() < 448)
 			{
-				if (asset.techniqueSet->techniques[i])
+				for (int i = 0; i < 48; ++i)
 				{
-					for (int j = 0; j < asset.techniqueSet->techniques[i]->passCount; ++j)
+					if (asset.techniqueSet->techniques[i])
 					{
-						Game::MaterialPass* pass = &asset.techniqueSet->techniques[i]->passArray[j];
-
-						for (int k = 0; k < (pass->perPrimArgCount + pass->perObjArgCount + pass->stableArgCount); ++k)
+						for (int j = 0; j < asset.techniqueSet->techniques[i]->passCount; ++j)
 						{
-							if (pass->args[k].type == D3DSHADER_PARAM_REGISTER_TYPE::D3DSPR_CONSTINT)
+							Game::MaterialPass* pass = &asset.techniqueSet->techniques[i]->passArray[j];
+
+							for (int k = 0; k < (pass->perPrimArgCount + pass->perObjArgCount + pass->stableArgCount); ++k)
 							{
-								if (pass->args[k].u.codeConst.index == -28132)
+								if (pass->args[k].type == D3DSHADER_PARAM_REGISTER_TYPE::D3DSPR_CONSTINT)
 								{
-									pass->args[k].u.codeConst.index = 2644;
+									if (pass->args[k].u.codeConst.index == -28132)
+									{
+										pass->args[k].u.codeConst.index = 2644;
+									}
 								}
 							}
 						}
@@ -261,7 +263,7 @@ namespace Components
 
 		if (Flags::HasFlag("entries"))
 		{
-			OutputDebugStringA(Utils::String::VA("%s: %d: %s\n", FastFiles::Current().data(), type, name));
+			Components::Logger::Print(Utils::String::VA("%s: %d: %s\n", FastFiles::Current().data(), type, name));
 		}
 
 		bool restrict = false;
