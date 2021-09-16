@@ -89,7 +89,7 @@ namespace Components
 		~FileSystem();
 
 		static std::vector<std::string> GetFileList(const std::string& path, const std::string& extension);
-		static std::vector<std::string> GetSysFileList(const std::string& path, const std::string& extension, bool folders = false);
+		static std::vector<std::string> GetSysFileList(const std::string& path, const std::string& extension, bool folders = false, bool recursive = false);
 		static bool DeleteFile(const std::string& folder, const std::string& file);
 
 	private:

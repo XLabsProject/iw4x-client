@@ -149,7 +149,7 @@ namespace Components
 		return fileList;
 	}
 
-	std::vector<std::string> FileSystem::GetSysFileList(const std::string& path, const std::string& extension, bool folders)
+	std::vector<std::string> FileSystem::GetSysFileList(const std::string& path, const std::string& extension, bool folders, bool recursive)
 	{
 		std::vector<std::string> fileList;
 
@@ -162,7 +162,16 @@ namespace Components
 			{
 				if (files[i])
 				{
-					fileList.push_back(files[i]);
+					if (recursive && std::string(files[i]).find(".") == std::string::npos) {
+						// Folder?
+						auto subPath = Utils::String::VA("%s/%s", path.c_str(), files[i]);
+
+						std::vector<std::string> subList = GetSysFileList(subPath, extension, folders, recursive);
+						fileList.insert(fileList.begin(), subList.begin(), subList.end());
+					}
+					else {
+						fileList.push_back(files[i]);
+					}
 				}
 			}
 
