@@ -82,7 +82,9 @@ namespace Components
 
 		static int PacketInterceptionHandler(const char* packet);
 		static void DeployPacket(Game::netadr_t* from, Game::msg_t* msg);
-		static void DeployPacketStub();
+		static void ClientDeployPacketStub();
+		static bool ShouldDeployClientPacket();
+		static void ServerDeployPacketStub();
 
 		static void NetworkStart();
 		static void NetworkStartStub();

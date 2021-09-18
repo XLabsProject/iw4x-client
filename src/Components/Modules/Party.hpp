@@ -21,6 +21,7 @@ namespace Components
 
 		static bool IsInUserMapLobby();
 		static bool IsInLobby();
+		static bool IsEnabled();
 
 		static std::string GetMotd();
 
@@ -50,5 +51,6 @@ namespace Components
 		static Game::dvar_t* RegisterMinPlayers(const char* name, int value, int min, int max, Game::dvar_flag flag, const char* description);
 
 		static DWORD UIDvarIntStub(char* dvar);
+		static Dvar::Var PartyEnable;
 	};
 }

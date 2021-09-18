@@ -292,19 +292,27 @@ namespace Components
 		}
 	}
 
-	__declspec(naked) void Network::DeployPacketStub()
+	bool Network::ShouldDeployClientPacket()
+	{
+		return Party::IsEnabled() || !Dedicated::IsEnabled();
+	}
+
+	__declspec(naked) void Network::ClientDeployPacketStub()
 	{
 		__asm
 		{
-			lea eax, [esp + 0C54h]
-
 			pushad
 
+			call ShouldDeployClientPacket
+			test al, al
+			je skip
+
+			lea eax, [esp + 0C54h + 20h]
 			push ebp // Command
 			push eax // Address pointer
 			call Network::DeployPacket
 			add esp, 8h
-
+		skip:
 			popad
 
 			mov al, 1
@@ -314,6 +322,26 @@ namespace Components
 			pop ebx
 			add esp, 0C40h
 			retn
+		}
+	}
+
+	__declspec(naked) void Network::ServerDeployPacketStub()
+	{
+		__asm
+		{
+			lea eax, [esp + 408h]
+
+			pushad
+
+			push esi // msg 
+			push eax // from 
+			call Network::DeployPacket
+			add esp, 8
+
+			popad
+
+			push 6267EBh
+			ret
 		}
 	}
 
@@ -383,14 +411,25 @@ namespace Components
 		// Install startup handler
 		Utils::Hook(0x4FD4D4, Network::NetworkStartStub, HOOK_JUMP).install()->quick();
 
-		// Install interception handler
+		if (Dedicated::IsEnabled())
+		{
+			// Install interception handler for SV_ConnectionlessPacket
+			Utils::Hook(0x6266D0, Network::PacketInterceptionHandler, HOOK_CALL).install()->quick();
+
+			// Install packet deploy hook
+			Utils::Hook::RedirectJump(0x6266DA, Network::ServerDeployPacketStub);
+		}
+
+		// Install interception handler for CL_ConnectionlessPacket
 		Utils::Hook(0x5AA709, Network::PacketInterceptionHandler, HOOK_CALL).install()->quick();
+
+		// Install packet deploy hook
+		Utils::Hook::RedirectJump(0x5AA713, Network::ClientDeployPacketStub);
 
 		// Prevent recvfrom error spam
 		Utils::Hook(0x46531A, Network::PacketErrorCheck, HOOK_JUMP).install()->quick();
 
-		// Install packet deploy hook
-		Utils::Hook::RedirectJump(0x5AA713, Network::DeployPacketStub);
+
 
 		// Fix packets causing buffer overflow
 		Utils::Hook(0x6267E3, Network::NET_DeferPacketToClientStub, HOOK_CALL).install()->quick();
