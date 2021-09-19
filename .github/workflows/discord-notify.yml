@@ -5,6 +5,7 @@ on:
     branches:
       - "*"
   issues:
+  pull_request:
 
 jobs:
   notify:
